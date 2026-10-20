@@ -1,0 +1,487 @@
+/* Shared listing sidebar filter (flight / hotel / car) */
+.yt-listing-filter {
+  --ytf-teal: #00a8a8;
+  --ytf-teal-soft: rgba(0, 168, 168, 0.1);
+  --ytf-ink: #1a2332;
+  --ytf-muted: #6b7a90;
+  --ytf-line: #e8eef3;
+  --ytf-radius: 12px;
+
+  background: #fff;
+  border: 1px solid var(--ytf-line);
+  border-radius: 16px;
+  overflow: hidden;
+
+  .ytf-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--ytf-line);
+  }
+
+  .ytf-head h5 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ytf-ink);
+  }
+
+  .ytf-reset {
+    border: 0;
+    background: none;
+    color: var(--ytf-teal);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .ytf-count {
+    padding: 10px 18px 0;
+    font-size: 13px;
+    color: var(--ytf-muted);
+  }
+
+  .ytf-section {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--ytf-line);
+  }
+
+  .ytf-section:last-child {
+    border-bottom: 0;
+  }
+
+  .ytf-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border: 0;
+    background: none;
+    padding: 0;
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ytf-ink);
+    cursor: pointer;
+    text-align: left;
+    gap: 8px;
+  }
+
+  .ytf-section-title > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .ytf-section-title i {
+    color: var(--ytf-muted);
+    font-size: 14px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .ytf-section-title.collapsed {
+    margin-bottom: 0;
+  }
+
+  .ytf-section-title.collapsed i {
+    transform: rotate(180deg);
+  }
+
+  .ytf-search {
+    position: relative;
+
+    .ytf-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ytf-muted);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    input {
+      width: 100%;
+      border: 1.5px solid var(--ytf-line);
+      border-radius: 10px;
+      padding: 10px 12px 10px 38px;
+      font-size: 14px;
+      color: var(--ytf-ink);
+      outline: none;
+      transition: border-color 0.15s;
+
+      &::placeholder {
+        color: var(--ytf-muted);
+      }
+
+      &:focus {
+        border-color: var(--ytf-teal);
+      }
+    }
+  }
+
+  .ytf-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ytf-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border: 1.5px solid var(--ytf-line);
+    background: #fff;
+    color: var(--ytf-ink);
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .ytf-pill:hover {
+    border-color: var(--ytf-teal);
+  }
+
+  .ytf-pill.on {
+    border-color: var(--ytf-teal);
+    background: var(--ytf-teal-soft);
+    color: var(--ytf-teal);
+  }
+
+  .ytf-star-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ytf-star-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1.5px solid var(--ytf-line);
+    background: #fff;
+    color: var(--ytf-ink);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    i {
+      color: #f5a623;
+      font-size: 12px;
+    }
+
+    .ytf-star-count {
+      color: var(--ytf-muted);
+      font-weight: 500;
+      font-size: 12px;
+    }
+  }
+
+  .ytf-star-pill:hover {
+    border-color: var(--ytf-teal);
+  }
+
+  .ytf-star-pill.on {
+    border-color: var(--ytf-teal);
+    background: var(--ytf-teal-soft);
+    color: var(--ytf-teal);
+
+    .ytf-star-count {
+      color: var(--ytf-teal);
+    }
+  }
+
+  /* Geometry (padding / negative inline margin / radius) lives here on the base
+     rule rather than on `.on`, so selecting a row changes ONLY its colour. If
+     the padding were added on selection the row would grow and everything below
+     it would jump down under the cursor mid-click. */
+  .ytf-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 -8px 2px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ytf-ink);
+    cursor: pointer;
+  }
+
+  .ytf-check:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .ytf-check input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--ytf-teal);
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .ytf-check-meta {
+    color: var(--ytf-muted);
+    font-size: 13px;
+  }
+
+  .ytf-more {
+    border: 0;
+    background: none;
+    color: var(--ytf-teal);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 0 0;
+    cursor: pointer;
+  }
+
+  .ytf-price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ytf-ink);
+  }
+
+  .ytf-price-hint {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: var(--ytf-muted);
+  }
+
+  .ytf-price-slider {
+    .ant-slider-track {
+      background: var(--ytf-teal) !important;
+    }
+    .ant-slider-handle::after {
+      box-shadow: 0 0 0 2px var(--ytf-teal) !important;
+    }
+    .ant-slider-handle:hover::after,
+    .ant-slider-handle:focus::after {
+      box-shadow: 0 0 0 2px var(--ytf-teal) !important;
+    }
+  }
+
+  .ytf-empty {
+    margin: 0;
+    font-size: 13px;
+    color: var(--ytf-muted);
+  }
+
+  .ytf-badge-temp {
+    font-size: 10px;
+    font-weight: 700;
+    background: #fff3cd;
+    color: #856404;
+    border-radius: 6px;
+    padding: 2px 6px;
+  }
+
+  /* --- "a filter is applied" affordances ---------------------------------
+     Selecting an option used to change nothing but a 16px checkbox, which is
+     easy to miss — especially after collapsing a section or scrolling past it.
+     Three layers now answer "is anything filtering my results?" at a glance:
+     a count on the panel header, a count per section (visible even when the
+     section is collapsed), and a teal wash on the selected rows themselves. */
+
+  .ytf-head h5 {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ytf-active-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--ytf-teal);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* Reset is only a real action while something is applied; until then it reads
+     as inert rather than as a button that does nothing. */
+  .ytf-reset {
+    border: 1.5px solid transparent;
+    border-radius: 999px;
+    padding: 5px 12px;
+    transition: all 0.15s;
+  }
+
+  .ytf-reset:disabled {
+    color: var(--ytf-muted);
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  .ytf-reset.is-active {
+    border-color: var(--ytf-teal);
+    background: var(--ytf-teal-soft);
+  }
+
+  .ytf-reset.is-active:hover {
+    background: var(--ytf-teal);
+    color: #fff;
+  }
+
+  .ytf-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 12px 18px 0;
+  }
+
+  .ytf-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    border: 1px solid var(--ytf-teal);
+    background: var(--ytf-teal-soft);
+    color: var(--ytf-teal);
+    border-radius: 999px;
+    padding: 4px 8px 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .ytf-chip:hover {
+    background: var(--ytf-teal);
+    color: #fff;
+  }
+
+  .ytf-chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ytf-chip-x {
+    font-size: 15px;
+    line-height: 1;
+    opacity: 0.8;
+  }
+
+  /* `.has-active` is left as a state hook only — section headings deliberately
+     keep their original ink colour. Recolouring them made the whole panel read
+     as restyled rather than as "these filters are on"; the count badge beside
+     the heading carries that signal on its own. */
+
+  .ytf-section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--ytf-teal);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* Selected rows get the same teal wash as a selected pill, so the panel reads
+     consistently however an option happens to be rendered. Colour only — the
+     box metrics are already on the base rule above, so a row never changes size
+     or position when it is picked. Deliberately no font-weight bump either:
+     re-weighting a long brand or amenity label can rewrap it and change the row
+     height, which is the same jump by another route. */
+  .ytf-check.on {
+    background: var(--ytf-teal-soft);
+    color: var(--ytf-teal);
+  }
+
+  .ytf-check.on .ytf-check-meta {
+    color: var(--ytf-teal);
+    opacity: 0.75;
+  }
+
+  /* A typed hotel-name search is a filter too — keep the box teal while it holds
+     a committed value, not just while it has focus. */
+  .ytf-search.on input {
+    border-color: var(--ytf-teal);
+    background: var(--ytf-teal-soft);
+  }
+}
+
+/* Sticky filter panel (hotel / car share `.yt-listing-filter`). Same pattern as
+   `.yt-flight-filter`: cap height to the viewport and scroll inside the card so
+   lower sections stay reachable when Results is long. Desktop only — on stacked
+   layouts the sidebar should flow with the page. */
+@media (min-width: 992px) {
+  .yt-listing-filter {
+    max-height: calc(100vh - 76px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+
+    background:
+      linear-gradient(to top, #fff 40%, rgba(255, 255, 255, 0)) bottom / 100% 32px
+        no-repeat local,
+      radial-gradient(
+          farthest-side at 50% 100%,
+          rgba(26, 35, 50, 0.13),
+          rgba(26, 35, 50, 0)
+        )
+        bottom / 100% 10px no-repeat scroll,
+      #fff;
+
+    .ytf-head {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #fff;
+    }
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--ytf-line) transparent;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--ytf-line);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: #cfd9e2;
+    }
+  }
+}
+
+/* Nested inside FilterDrawer — the drawer already supplies the card chrome. */
+.yt-listing-filter.yt-listing-filter--drawer {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+
+  .ytf-reset {
+    margin-inline-start: auto;
+  }
+}

@@ -1,0 +1,522 @@
+@use "sass:color";
+@use "../utils/mixins";
+@use "../utils/variables";
+
+/*============================
+  48.cart
+============================*/
+
+.cart-table {
+  box-shadow: none;
+
+  .table {
+    thead {
+      tr {
+        th {
+          background-color: variables.$light-200;
+          border-bottom: none;
+          padding: 12px 20px;
+          white-space: nowrap;
+        }
+      }
+    }
+
+    tbody {
+      vertical-align: middle;
+
+      tr {
+        &:last-child {
+          td {
+            border-bottom: 0;
+          }
+        }
+        td {
+          padding: 16px 20px;
+
+          .cart-details {
+            .cart-items {
+              a {
+                width: 30px;
+                height: 30px;
+                background-color: variables.$light;
+                color: variables.$gray-600;
+                &.edit-icon{
+                  &:hover{
+                    background-color: color.adjust(variables.$light, $lightness: -7%);
+                    color: variables.$gray-600;
+                  }
+                }
+                &.delete-icon{
+                  background-color: variables.$danger-transparent;
+                  color: variables.$danger;
+                  &:hover{
+                    background-color: color.adjust(variables.$danger-transparent, $lightness: -7%);
+                    color: variables.$danger;
+                  }
+                }
+               
+                @include mixins.respond-below(md) {
+                  margin-bottom: 8px;
+                }
+
+                @include mixins.respond-below(lg) {
+                  margin-bottom: 10px;
+                }
+              }
+            }
+
+            .cart-image {
+              .cart-image-content {
+                white-space: nowrap;
+              }
+              img {
+                @include mixins.respond-below(md) {
+                  margin-bottom: 8px;
+                }
+                @include mixins.respond-below(lg) {
+                  margin-bottom: 10px;
+                }
+              }
+            }
+          }
+          .guests-details {
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}
+.cart-payment {
+  box-shadow: none;
+}
+
+//Checkout
+.checkout-card {
+  box-shadow: none;
+}
+.coupoun {
+  box-shadow: none;
+  .coupoun-list {
+    padding: 8px;
+    background-color: variables.$success-100;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 2px;
+      height: 40px;
+      border-radius: 10px;
+      background-color: variables.$success;
+      left: 0;
+      top: 0;
+      @include mixins.respond-below(md){
+        top: 13px;
+      }
+    }
+  }
+  .coupoun-list-two {
+    padding: 8px;
+    background-color: variables.$danger-100;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 2px;
+      height: 40px;
+      border-radius: 10px;
+      background-color: variables.$danger;
+      left: 0;
+      top: 0;
+    }
+  }
+}
+.payment-details {
+  box-shadow: none;
+}
+
+.credit-card-details {
+  .card-detials {
+    .card-content {
+      padding: 20px;
+      border: 1px solid variables.$light;
+      border-radius: 10px;
+      .card-edit-icon {
+        a {
+          width: 22px;
+          height: 22px;
+          padding: 4px;
+          background-color: variables.$light;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+    .card-add {
+      padding: 20px;
+      border: 1px solid variables.$primary;
+      border-radius: 10px;
+      background-color: variables.$light-200;
+      width: 256px;
+      height: 149px;
+      .add-option {
+        a {
+          width: 22px;
+          height: 22px;
+          padding: 4px;
+          background-color: variables.$light;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .file-input {
+          display: none;
+        }
+      }
+    }
+  }
+  .card-form {
+    .user-icon {
+      display: flex;
+      align-items: center;
+      border: 1px solid variables.$light;
+      border-radius: 5px;
+      .input-icon {
+        padding-left: 10px;
+      }
+      .form-control {
+        border: none;
+      }
+    }
+  }
+}
+.paypal-details {
+  .card-detials {
+    .card-content {
+      padding: 20px;
+      border: 1px solid variables.$light;
+      border-radius: 10px;
+      .card-edit-icon {
+        a {
+          width: 22px;
+          height: 22px;
+          padding: 4px;
+          background-color: variables.$light;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+    .card-add {
+      padding: 20px;
+      border: 1px solid variables.$primary;
+      border-radius: 10px;
+      background-color: variables.$light-200;
+      width: 256px;
+      height: 149px;
+      .add-option {
+        a {
+          width: 22px;
+          height: 22px;
+          padding: 4px;
+          background-color: variables.$light;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .file-input {
+          display: none;
+        }
+      }
+    }
+  }
+  .card-form {
+    .user-icon {
+      display: flex;
+      align-items: center;
+      border: 1px solid variables.$light;
+      border-radius: 5px;
+      .input-icon {
+        padding-left: 10px;
+      }
+      .form-control {
+        border: none;
+      }
+    }
+  }
+}
+.stripe-details {
+  .card-detials {
+    .card-content {
+      padding: 20px;
+      border: 1px solid variables.$light;
+      border-radius: 10px;
+      .card-edit-icon {
+        a {
+          width: 22px;
+          height: 22px;
+          padding: 4px;
+          background-color: variables.$light;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+    .card-add {
+      padding: 20px;
+      border: 1px solid variables.$primary;
+      border-radius: 10px;
+      background-color: variables.$light-200;
+      width: 256px;
+      height: 149px;
+      .add-option {
+        a {
+          width: 22px;
+          height: 22px;
+          padding: 4px;
+          background-color: variables.$light;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .file-input {
+          display: none;
+        }
+      }
+    }
+  }
+}
+.user-icon {
+  display: flex;
+  align-items: center;
+  border: 1px solid variables.$light;
+  border-radius: 5px;
+  position: relative;
+  .input-icon {
+    padding-left: 10px;
+  }
+  .form-control {
+    border: none;
+  }
+}
+.order-details {
+  box-shadow: none;
+    .header-content {
+      a {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  
+}
+.booking-success-modal{
+  .booking-icon{
+    span{
+      width: 48px;
+      height: 48px;
+      i{
+        background-color: variables.$success;
+        color: variables.$white;
+      }
+    }
+  }
+}
+.modal{
+  .modal-dialog{
+    &.modal-sm{
+      max-width: 400px;
+      .modal-body{
+        padding: 40px;
+      }
+    }
+    &.modal-md{
+      max-width: 600px;
+    }
+  }
+}
+.chat-cont-left{
+  display: flex;
+  &.hidden{
+    display: none;
+  }
+}
+.visible{
+  display: flex !important;
+}
+
+/*============================
+  48b. checkout redesign
+============================*/
+.checkout-card {
+  border: 1px solid variables.$light;
+  border-radius: 16px;
+
+  > .card-header {
+    background: transparent;
+    border-bottom: 1px solid variables.$light;
+    padding: 18px 24px;
+
+    h5 {
+      margin-bottom: 2px;
+    }
+    .checkout-card__sub {
+      font-size: 13px;
+      color: variables.$gray-600;
+      margin: 0;
+    }
+  }
+
+  > .card-body {
+    padding: 24px;
+  }
+
+  // Sectioned form — structure communicates grouping, not decoration.
+  .checkout-section + .checkout-section {
+    margin-top: 26px;
+    padding-top: 24px;
+    border-top: 1px solid variables.$light;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+
+    .section-head__icon {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 18px;
+      color: variables.$primary;
+      background: color.adjust(variables.$primary, $alpha: -0.9);
+    }
+    h6 {
+      margin: 0;
+      font-weight: 600;
+    }
+    .section-head__sub {
+      margin: 0;
+      font-size: 12.5px;
+      color: variables.$gray-600;
+    }
+  }
+
+  .form-label {
+    font-weight: 500;
+    font-size: 13.5px;
+    margin-bottom: 6px;
+    color: variables.$gray-600;
+  }
+
+  .form-control,
+  .select .select__control {
+    min-height: 46px;
+    border-radius: 10px;
+  }
+  textarea.form-control {
+    min-height: auto;
+    resize: vertical;
+  }
+
+  // Validation should guide, not alarm: drop the in-field icon, lighten the
+  // border, keep the message as quiet helper text.
+  .form-control.is-invalid,
+  .select.is-invalid .select__control {
+    border-color: color.adjust(variables.$danger, $lightness: 15%);
+    background-image: none;
+    padding-right: 0.9rem;
+  }
+  .invalid-feedback {
+    font-size: 12px;
+  }
+}
+
+// Order summary sidebar
+.order-details {
+  border: 1px solid variables.$light;
+  border-radius: 16px;
+
+  .card-header {
+    background: transparent;
+    border-bottom: 1px solid variables.$light;
+    padding: 18px 20px;
+  }
+  .card-body {
+    padding: 20px;
+  }
+
+  .summary-airline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    img {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: contain;
+      border: 1px solid variables.$light;
+      padding: 3px;
+      background: variables.$white;
+    }
+  }
+
+  .details-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+
+    h6 {
+      font-weight: 500;
+      color: variables.$gray-600;
+      margin: 0;
+    }
+    p {
+      margin: 0;
+      font-weight: 500;
+      text-align: right;
+    }
+  }
+
+  .summary-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    margin-top: 14px;
+    border-radius: 12px;
+    background: color.adjust(variables.$primary, $alpha: -0.94);
+
+    h6 {
+      margin: 0;
+    }
+    .summary-total__value {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: variables.$primary;
+    }
+  }
+
+  .summary-note {
+    font-size: 12px;
+    color: variables.$gray-600;
+  }
+}

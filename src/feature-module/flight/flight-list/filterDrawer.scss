@@ -1,0 +1,154 @@
+.ytf-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 1055;
+  /* A closed drawer must not sit over the page eating clicks. The panel
+     re-enables pointer events for itself below. */
+  pointer-events: none;
+}
+
+.ytf-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.45);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.ytf-drawer__panel {
+  position: absolute;
+  inset-block: 0;
+  /* Logical inset: the START edge is the left in English, the right in Arabic,
+     so the drawer enters from the side the reader begins on in both. */
+  inset-inline-start: 0;
+  width: min(100%, 420px);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  /* Shadow falls away from the panel, i.e. rightward off its right edge. */
+  box-shadow: 12px 0 32px rgba(16, 24, 40, 0.16);
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+
+/* `transform` has no logical equivalent, so RTL needs the sign flipped by hand
+   or the drawer parks off the wrong edge and appears to fly across the page.
+   `inset-inline-start` has already moved the panel to the RIGHT edge here, so
+   it must park further right, and its shadow falls leftward. */
+[dir="rtl"] .ytf-drawer__panel {
+  transform: translateX(100%);
+  box-shadow: -12px 0 32px rgba(16, 24, 40, 0.16);
+}
+
+.ytf-drawer.is-open {
+  pointer-events: auto;
+
+  .ytf-drawer__backdrop {
+    opacity: 1;
+  }
+
+  .ytf-drawer__panel {
+    transform: translateX(0);
+  }
+}
+
+[dir="rtl"] .ytf-drawer.is-open .ytf-drawer__panel {
+  transform: translateX(0);
+}
+
+.ytf-drawer__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--ytf-line, #e6e9ef);
+}
+
+.ytf-drawer__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.ytf-drawer__close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #4b5563;
+  font-size: 20px;
+  line-height: 1;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(16, 24, 40, 0.06);
+    color: #101828;
+  }
+}
+
+/* The panel inside scrolls; the drawer frame does not. This is now the one
+   real scroll container in the drawer (the filter panel itself no longer
+   sets `overflow`, deliberately — see the comment on `.yt-flight-filter` in
+   flightFilter.scss), so the scroll affordances that used to live on the
+   panel — reserving the scrollbar's width and a thin scrollbar — belong here
+   instead. There is deliberately no bottom scroll-shadow: `.ytf-footer` is
+   `position: sticky; bottom: 0` with an opaque `background: #fff` (see
+   flightFilter.scss) and sits ~66px tall, so it already occupies the bottom
+   edge of this scrollport at every scroll offset and reads as the boundary.
+   A shadow anchored there would render underneath the footer and never be
+   visible — that was tried and is why it was removed. */
+.ytf-drawer__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Reserve the scrollbar's width up front so content doesn't shift sideways
+     the moment the body becomes tall enough to scroll. */
+  scrollbar-gutter: stable;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--ytf-line, #e6e9ef) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--ytf-line, #e6e9ef);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #cfd9e2;
+  }
+}
+
+/* `.yt-flight-filter` still ships its own opaque `background: #fff` plus a
+   border and radius — load-bearing on `flightGrid.tsx`, where it stands
+   alone as a bordered card. In here it's flush against a drawer panel that
+   already supplies its own white (`.ytf-drawer__panel`, above), so that
+   background/border/radius are simply redundant. Scope the neutralization to
+   the drawer only — this selector reaches the panel exclusively when it's a
+   drawer child, so flightGrid's card look is untouched. `.ytf-footer` keeps
+   its own `background: #fff` (set in flightFilter.scss) regardless — it
+   still needs to occlude rows scrolling underneath it while pinned. */
+.ytf-drawer__body .yt-flight-filter {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ytf-drawer__panel,
+  .ytf-drawer__backdrop {
+    transition-duration: 0.01ms;
+  }
+}

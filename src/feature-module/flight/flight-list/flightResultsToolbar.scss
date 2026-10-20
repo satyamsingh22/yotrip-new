@@ -1,0 +1,163 @@
+.ytf-toolbar {
+  position: sticky;
+  /* Sits below the site header, which switches to `position: fixed !important;
+     top: 0 !important; z-index: 100` once `window.scrollY > 0` (see
+     header.tsx) and renders above the route outlet — without an offset this
+     toolbar, the entire replacement for the removed filter sidebar, parks
+     underneath it on any scroll and the user loses all visible access to
+     filters. 60px matches this repo's own convention for sitting below the
+     fixed header: `.theiaStickySidebar { position: sticky; top: 60px }` in
+     index.scss, already used by the car and hotel listing sidebars. Final
+     per-breakpoint calibration still wants a real browser — the header's
+     height differs below `xl`, where the nav collapses to a hamburger. */
+  top: 60px;
+  /* Deliberately below the header's z-index: 100. If any overlap remains at
+     some breakpoint, the header should cover the toolbar rather than the
+     toolbar punching through the header — the correct failure mode. */
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--ytf-line, #e6e9ef);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.ytf-toolbar__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ytf-toolbar__btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid var(--ytf-line, #e6e9ef);
+  border-radius: 10px;
+  padding: 8px 14px;
+  background: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  color: #101828;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: #2563eb;
+    color: #2563eb;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+  }
+}
+
+.ytf-toolbar__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.ytf-toolbar__summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  /* Many tags on a narrow phone scroll sideways rather than wrapping the
+     strip to three rows and pushing the results back down the page. */
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+  }
+}
+
+.ytf-toolbar__tag {
+  flex: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.ytf-toolbar__tag--more {
+  background: rgba(16, 24, 40, 0.06);
+  color: #475467;
+}
+
+.ytf-toolbar__end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-inline-start: auto;
+}
+
+.ytf-toolbar__sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ytf-toolbar__sort-btn {
+  border: 1.5px solid var(--ytf-line, #e6e9ef);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475467;
+  cursor: pointer;
+
+  &.on {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
+}
+
+.ytf-toolbar__count {
+  /* An `<h6>` for the document outline (see FlightResultsToolbar.tsx) — reset
+     the browser's default heading margin so it keeps this strip's inline
+     layout instead of stacking with UA-stylesheet spacing above/below. */
+  margin: 0;
+  flex: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #344054;
+}

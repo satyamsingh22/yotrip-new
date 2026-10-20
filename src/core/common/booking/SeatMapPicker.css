@@ -1,0 +1,143 @@
+/* Seat map — the aircraft is drawn horizontally (nose→tail, left to right): each
+   row is a vertical strip of seats A–F, the aisle is a horizontal gap between the
+   two halves, and a sticky letter column stays visible while you scroll sideways.
+   This matches the plane's long shape and needs far less scrolling than a tall
+   top-to-bottom list. Colour encodes availability only; seat type is conveyed by
+   position + legend + selection summary. Matches the app's navy/olive. */
+
+.seat-picker-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  font-size: 12px;
+  color: #5b6472;
+}
+.seat-picker-legend .lg { display: inline-flex; align-items: center; gap: 6px; }
+.seat-picker-legend .sw {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 1.5px solid transparent;
+  display: inline-block;
+}
+.seat-picker-legend .sw--available { background: #fff; border-color: #6f8f2f; }
+.seat-picker-legend .sw--selected { background: #152c6f; border-color: #152c6f; }
+.seat-picker-legend .sw--occupied { background: #eceef1; border-color: #dfe3e8; }
+.seat-picker-legend .sw--legroom { background: #fff; border-color: #6f8f2f; box-shadow: inset 3px 0 0 #0e8a6a; }
+
+.seat-cabin {
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  background: linear-gradient(#fbfcfe, #f6f8fb);
+  padding: 12px 14px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Sticky column of seat letters (A–F) on the left. */
+.seat-letters {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 6px;
+  background: #f8fafc;
+}
+.seat-letters .rownum-spacer { height: 18px; }
+.seat-letters .col-letter {
+  height: 34px;
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #98a2b3;
+}
+
+/* One vertical strip per row, laid left → right. */
+.seat-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.seat-col .seat-rownum {
+  height: 18px;
+  width: 34px;
+  text-align: center;
+  font-size: 11px;
+  color: #98a2b3;
+}
+
+/* Horizontal aisle gap between the two seat halves (e.g. C | D). */
+.seat-aisle { height: 14px; flex: 0 0 14px; }
+
+.seat {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 8px;
+  border: 1.5px solid #6f8f2f;
+  background: #fff;
+  color: #5c7524;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.08s ease, background 0.12s ease, box-shadow 0.12s ease;
+  position: relative;
+}
+.seat:hover:not(:disabled) { background: #f3f7e9; transform: translateY(-1px); }
+.seat:focus-visible { outline: 2px solid #152c6f; outline-offset: 2px; }
+
+.seat--legroom { box-shadow: inset 3px 0 0 #0e8a6a; }
+
+.seat--selected { background: #152c6f; border-color: #152c6f; color: #fff; }
+.seat--selected:hover:not(:disabled) { background: #1b3891; }
+
+.seat--occupied {
+  background: #eceef1;
+  border-color: #e2e6eb;
+  color: #b4bac2;
+  cursor: not-allowed;
+}
+
+.seat-summary { font-size: 13px; color: #2f7d32; font-weight: 600; }
+.seat-summary--empty { color: #98a2b3; font-weight: 500; }
+
+@media (prefers-reduced-motion: reduce) {
+  .seat { transition: none; }
+  .seat:hover:not(:disabled) { transform: none; }
+}
+
+/* Loading skeleton — shown in place of the seat grid while the seat map is being
+   fetched (~2–3s for Tripjack). The card + header + legend render immediately so
+   the section no longer appears blank and then pops in; only the grid shimmers. */
+.seat-skel-line,
+.seat-skel {
+  background: linear-gradient(90deg, #eceef1 25%, #f4f6f8 37%, #eceef1 63%);
+  background-size: 400% 100%;
+  animation: seat-skel-shimmer 1.4s ease infinite;
+  border-radius: 8px;
+}
+.seat-skel-line { height: 14px; margin-bottom: 10px; }
+.seat-skel-line--sub { width: 160px; height: 12px; }
+.seat-skel-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.seat-skel { width: 34px; height: 34px; flex: 0 0 34px; }
+
+@keyframes seat-skel-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seat-skel-line,
+  .seat-skel { animation: none; }
+}

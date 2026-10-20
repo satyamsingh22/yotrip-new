@@ -1,0 +1,17 @@
+export const frequentFlyerAirlineOptions = [
+  { label: "EK — Emirates", value: "EK" },
+  { label: "GF — Gulf Air", value: "GF" },
+  { label: "SV — Saudia", value: "SV" },
+  { label: "QR — Qatar Airways", value: "QR" },
+  { label: "EY — Etihad Airways", value: "EY" },
+  { label: "FZ — flydubai", value: "FZ" },
+  { label: "WY — Oman Air", value: "WY" },
+  { label: "KU — Kuwait Airways", value: "KU" },
+  { label: "MS — EgyptAir", value: "MS" },
+  { label: "TK — Turkish Airlines", value: "TK" },
+  { label: "AI — Air India", value: "AI" },
+  { label: "BA — British Airways", value: "BA" },
+  { label: "LH — Lufthansa", value: "LH" },
+  { label: "AF — Air France", value: "AF" },
+  { label: "KL — KLM", value: "KL" },
+];

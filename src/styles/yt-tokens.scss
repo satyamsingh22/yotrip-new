@@ -1,0 +1,142 @@
+/* ════════════════════════════════════════════
+   YoTrip — shared design tokens and primitives
+   Included inside a page's own scope class so
+   nothing leaks into the Bootstrap storefront.
+   Used by: .yt-home (homepage), .yt-halal.
+
+   Split into two mixins because CSS order matters:
+   yt-home includes each at the position its rules
+   originally occupied, so the compiled output is
+   byte-for-byte what it was before the extraction.
+════════════════════════════════════════════ */
+
+@mixin yt-tokens {
+  /* Palette — sky, ocean ink, sunshine */
+  --cloud: #fdfdfb;
+  --sky: #edf6fb;
+  --sky-deep: #dceef8;
+  --ink: #16324a;
+  --ink-soft: #5a7184;
+  --ink-faint: #93a9ba;
+  --blue: #1a5cf5;
+  --teal: #00a8a8;
+  --sun: #ffb648;
+  --sun-soft: #fff4e0;
+  --line: #e4edf3;
+  --card-shadow: 0 2px 8px rgba(22, 50, 74, 0.05), 0 12px 32px rgba(22, 50, 74, 0.07);
+  --card-shadow-lift: 0 4px 12px rgba(22, 50, 74, 0.07), 0 24px 48px rgba(22, 50, 74, 0.12);
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-body: "Plus Jakarta Sans", -apple-system, sans-serif;
+  --r: 16px;
+  --r-lg: 24px;
+
+  font-family: var(--font-body);
+  background: var(--cloud);
+  color: var(--ink-soft);
+  line-height: 1.65;
+  font-size: 16px;
+  overflow-x: hidden;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  .wrap {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    color: var(--ink);
+    line-height: 1.12;
+    font-weight: 700;
+    margin: 0;
+  }
+  h1 {
+    font-size: clamp(38px, 5.4vw, 60px);
+    letter-spacing: -1.5px;
+  }
+  h2 {
+    font-size: clamp(26px, 3.6vw, 38px);
+    letter-spacing: -0.8px;
+  }
+  h3 {
+    font-size: 19px;
+    letter-spacing: -0.3px;
+  }
+  p {
+    margin: 0;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 100px;
+    padding: 13px 26px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: linear-gradient(120deg, var(--blue), var(--teal));
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(26, 92, 245, 0.22);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(26, 92, 245, 0.3);
+  }
+  .btn-soft {
+    background: var(--sky);
+    color: var(--ink);
+  }
+  .btn-soft:hover {
+    background: var(--sky-deep);
+  }
+  .btn-white {
+    background: #fff;
+    color: var(--ink);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.15);
+  }
+  .btn-white:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@mixin yt-sections {
+  .section {
+    padding: 88px 0;
+  }
+  .sec-head {
+    text-align: center;
+    max-width: 560px;
+    margin: 0 auto 52px;
+  }
+  .sec-eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+  }
+  .sec-head p {
+    font-size: 16.5px;
+    margin-top: 12px;
+  }
+}

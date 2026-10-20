@@ -1,0 +1,146 @@
+.yt-chat-fab {
+  position: fixed;
+  bottom: max(22px, env(safe-area-inset-bottom));
+  right: max(20px, env(safe-area-inset-right));
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.yt-chat-fab__hint,
+.yt-chat-fab__btn,
+.yt-chat-fab__panel {
+  pointer-events: auto;
+}
+
+.yt-chat-fab__hint {
+  background: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #16324a;
+  box-shadow: 0 8px 28px rgba(22, 50, 74, 0.14);
+  cursor: pointer;
+  max-width: 220px;
+  text-align: left;
+}
+
+.yt-chat-fab__btn {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 10px 32px rgba(0, 80, 120, 0.25);
+  background: #e8f7ff;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.yt-chat-fab__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #e53935;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+.yt-chat-fab__panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  width: min(280px, calc(100vw - 40px));
+  box-shadow: 0 12px 40px rgba(22, 50, 74, 0.18);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.yt-chat-fab__panel-title {
+  font-weight: 800;
+  font-size: 15px;
+  margin: 0 0 6px;
+  color: #16324a;
+}
+
+.yt-chat-fab__panel-sub {
+  font-size: 13px;
+  color: #6c757d;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+/* Mock: big Yori avatar in a blue ring, tilted handwritten hint with a tail. */
+.yt-chat-fab {
+  gap: 4px;
+}
+.yt-chat-fab__hint {
+  position: relative;
+  font-family: "Kalam", "Bricolage Grotesque", cursive;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.15;
+  color: #0b1640;
+  max-width: 190px;
+  padding: 10px 16px 12px;
+  border-radius: 18px;
+  transform: rotate(-7deg) translate(-56px, 6px);
+
+  &::after {
+    content: "";
+    position: absolute;
+    right: 46px;
+    bottom: -11px;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 13px solid #fff;
+  }
+}
+.yt-chat-fab__btn {
+  width: 92px;
+  height: 92px;
+  border: 4px solid #fff;
+  box-shadow:
+    0 0 0 4px #2f7cf0,
+    0 14px 34px rgba(0, 60, 140, 0.3);
+}
+.yt-chat-fab__badge {
+  top: 4px;
+  right: 4px;
+  min-width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+@media (max-width: 767px) {
+  .yt-chat-fab__hint {
+    display: none;
+  }
+  .yt-chat-fab__btn {
+    width: 64px;
+    height: 64px;
+    border-width: 3px;
+    box-shadow:
+      0 0 0 3px #2f7cf0,
+      0 10px 24px rgba(0, 60, 140, 0.28);
+  }
+}

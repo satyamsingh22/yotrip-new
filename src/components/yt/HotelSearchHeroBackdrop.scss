@@ -1,0 +1,130 @@
+.yt-hotel-hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.yt-hotel-hero-bg--strip {
+  border-radius: 12px 12px 0 0;
+
+  .yt-hotel-hero-bg__cruise {
+    bottom: 8%;
+  }
+
+  .yt-hotel-hero-bg__ship {
+    font-size: 22px;
+    animation-duration: 32s;
+  }
+
+  .yt-hotel-hero-bg__waves {
+    height: 48px;
+  }
+}
+
+.yt-hotel-hero-bg__photo {
+  position: absolute;
+  inset: -8% -4%;
+  background-size: cover;
+  background-position: center 40%;
+  animation: yt-hotel-kenburns 28s ease-in-out infinite alternate;
+  transform-origin: center;
+  filter: saturate(1.05) brightness(0.92);
+}
+
+.yt-hotel-hero-bg__wash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(232, 247, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.72) 45%,
+    rgba(255, 255, 255, 0.88) 100%
+  );
+}
+
+.yt-hotel-hero-bg__waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 88px;
+  width: 100%;
+}
+
+.yt-hotel-hero-bg__wave {
+  fill: rgba(255, 255, 255, 0.35);
+}
+
+.yt-hotel-hero-bg__wave--a {
+  animation: yt-hotel-wave-slide 14s linear infinite;
+}
+
+.yt-hotel-hero-bg__wave--b {
+  fill: rgba(0, 168, 168, 0.12);
+  animation: yt-hotel-wave-slide 20s linear infinite reverse;
+}
+
+.yt-hotel-hero-bg__cruise {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18%;
+  height: 48px;
+}
+
+.yt-hotel-hero-bg__ship {
+  position: absolute;
+  font-size: clamp(28px, 4vw, 42px);
+  filter: drop-shadow(0 6px 12px rgba(0, 60, 80, 0.25));
+  animation: yt-cruise-sail 42s linear infinite;
+  will-change: transform;
+}
+
+@keyframes yt-hotel-kenburns {
+  from {
+    transform: scale(1.02) translate(0, 0);
+  }
+  to {
+    transform: scale(1.08) translate(-1.5%, -1%);
+  }
+}
+
+@keyframes yt-cruise-sail {
+  0% {
+    left: -12%;
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+  100% {
+    left: 108%;
+    transform: translateY(0) rotate(-1deg);
+  }
+}
+
+@keyframes yt-hotel-wave-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-4%);
+  }
+}
+
+.yt-hotel-search-card {
+  position: relative;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yt-hotel-hero-bg__photo,
+  .yt-hotel-hero-bg__ship,
+  .yt-hotel-hero-bg__wave--a,
+  .yt-hotel-hero-bg__wave--b {
+    animation: none !important;
+  }
+}

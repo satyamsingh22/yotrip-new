@@ -1,0 +1,464 @@
+/* Almosafer-inspired flight filter UI (reference only — YoTrip tokens) */
+.yt-flight-filter {
+  --ytf-teal: #00a8a8;
+  --ytf-teal-soft: rgba(0, 168, 168, 0.1);
+  --ytf-ink: #1a2332;
+  --ytf-muted: #6b7a90;
+  --ytf-line: #e8eef3;
+  --ytf-radius: 12px;
+
+  background: #fff;
+  border: 1px solid var(--ytf-line);
+  border-radius: 16px;
+  /* No `overflow: hidden` here (deliberately — see Task 3 review): per CSS
+     Overflow 3, `hidden` makes this box a scroll container, which would put
+     `.ytf-footer`'s `position: sticky` up against THIS element's scrollport
+     instead of `.ytf-drawer__body`'s. Since nothing here overflows, that
+     scrollport never scrolls, so the sticky footer would never engage and
+     would end up scrolling out of view with the rest of the panel. The
+     rounded-corner clipping this used to provide is obsolete now the drawer
+     supplies the visual frame. */
+
+  .ytf-count {
+    padding: 10px 18px 0;
+    font-size: 13px;
+    color: var(--ytf-muted);
+  }
+
+  .ytf-time-heading {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ytf-muted);
+    margin: 0 0 8px;
+  }
+
+  .ytf-time-heading--spaced {
+    margin-top: 14px;
+  }
+
+  .ytf-section {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--ytf-line);
+  }
+
+  /* `.ytf-footer` (below) is the actual last child here, not the last
+     `.ytf-section` — it renders as a sibling AFTER the sections, so a plain
+     `:last-child` (or `:last-of-type`, which matches on tag name and would
+     resolve to the footer's own `div` too) never matches any `.ytf-section`
+     and silently does nothing. Target the section that actually precedes the
+     footer instead, so its `border-bottom` doesn't double up with the
+     footer's own `border-top` into a visible 2px line. */
+  .ytf-section:has(+ .ytf-footer) {
+    border-bottom: 0;
+  }
+
+  .ytf-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border: 0;
+    background: none;
+    padding: 0;
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ytf-ink);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .ytf-section-title > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .ytf-section-title i {
+    color: var(--ytf-muted);
+    font-size: 14px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .ytf-section-title.collapsed i {
+    transform: rotate(180deg);
+  }
+
+  /* Geometry (padding / negative inline margin / radius) lives here on the base
+     rule rather than on `.on`, so selecting a row changes ONLY its colour. If
+     the padding were added on selection the row would grow and everything below
+     it would jump down under the cursor mid-click. */
+  .ytf-radio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 -8px 2px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--ytf-ink);
+  }
+
+  .ytf-radio:last-child {
+    margin-bottom: 0;
+  }
+
+  .ytf-radio input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--ytf-teal);
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .ytf-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ytf-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border: 1.5px solid var(--ytf-line);
+    background: #fff;
+    color: var(--ytf-ink);
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .ytf-pill:hover {
+    border-color: var(--ytf-teal);
+  }
+
+  .ytf-pill.on {
+    border-color: var(--ytf-teal);
+    background: var(--ytf-teal-soft);
+    color: var(--ytf-teal);
+  }
+
+  .ytf-time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .ytf-time-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    border: 1.5px solid var(--ytf-line);
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ytf-ink);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+  }
+
+  .ytf-time-pill i {
+    font-size: 16px;
+    color: var(--ytf-muted);
+  }
+
+  .ytf-time-pill.on {
+    border-color: var(--ytf-teal);
+    background: var(--ytf-teal-soft);
+    color: var(--ytf-teal);
+  }
+
+  .ytf-time-pill.on i {
+    color: var(--ytf-teal);
+  }
+
+  .ytf-airline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 -8px 4px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .ytf-airline:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .ytf-airline input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--ytf-teal);
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .ytf-airline-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #f5f8fa;
+    border: 1px solid var(--ytf-line);
+    flex-shrink: 0;
+  }
+
+  .ytf-airline-name {
+    font-size: 14px;
+    color: var(--ytf-ink);
+    font-weight: 500;
+  }
+
+  .ytf-more {
+    border: 0;
+    background: none;
+    color: var(--ytf-teal);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 0 0;
+    cursor: pointer;
+  }
+
+  .ytf-price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ytf-ink);
+  }
+
+  .ytf-price-slider {
+    .ant-slider-track {
+      background: var(--ytf-teal) !important;
+    }
+    .ant-slider-handle::after {
+      box-shadow: 0 0 0 2px var(--ytf-teal) !important;
+    }
+    .ant-slider-handle:hover::after,
+    .ant-slider-handle:focus::after {
+      box-shadow: 0 0 0 2px var(--ytf-teal) !important;
+    }
+  }
+
+  .ytf-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 -8px 2px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ytf-ink);
+    cursor: pointer;
+  }
+
+  .ytf-check input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--ytf-teal);
+    margin: 0;
+  }
+
+  .ytf-badge-temp {
+    font-size: 10px;
+    font-weight: 700;
+    background: #fff3cd;
+    color: #856404;
+    border-radius: 6px;
+    padding: 2px 6px;
+    margin-left: 6px;
+  }
+
+  /* --- "a filter is applied" affordances ---------------------------------
+     Selecting an option used to change nothing but a 16px checkbox, which is
+     easy to miss — especially after collapsing a section or scrolling past it.
+     Two layers now answer "is anything filtering my results?" at a glance:
+     a count per section (visible even when the section is collapsed), and a
+     teal wash on the selected rows themselves. The toolbar above the results
+     (`FlightResultsToolbar.tsx`) carries the overall "how many, which ones"
+     summary now that the panel moved into the drawer and lost its header. */
+
+  .ytf-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 12px 18px 0;
+  }
+
+  .ytf-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    border: 1px solid var(--ytf-teal);
+    background: var(--ytf-teal-soft);
+    color: var(--ytf-teal);
+    border-radius: 999px;
+    padding: 4px 8px 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .ytf-chip:hover {
+    background: var(--ytf-teal);
+    color: #fff;
+  }
+
+  .ytf-chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ytf-chip-x {
+    font-size: 15px;
+    line-height: 1;
+    opacity: 0.8;
+  }
+
+  /* `.has-active` is left as a state hook only — section headings deliberately
+     keep their original ink colour. Recolouring them made the whole panel read
+     as restyled rather than as "these filters are on"; the count badge beside
+     the heading carries that signal on its own. */
+
+  .ytf-section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--ytf-teal);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* Selected rows get the same teal wash as a selected pill, so the panel reads
+     consistently however an option happens to be rendered. Colour only — the
+     box metrics are already on the base rules above, so a row never changes
+     size or position when it is picked. Deliberately no font-weight bump
+     either: re-weighting a long airline name can rewrap it and change the row
+     height, which is the same jump by another route. */
+  .ytf-check.on,
+  .ytf-radio.on,
+  .ytf-airline.on {
+    background: var(--ytf-teal-soft);
+    color: var(--ytf-teal);
+  }
+
+  /* This is the drawer's primary exit and is never disabled (see
+     flightFilter.tsx), so both the resting and `is-pending` states get the
+     same solid, clearly-actionable teal fill — muted/disabled styling is
+     reserved for controls that can genuinely go inert, which this one no
+     longer does. The label text ("Show N flights" vs "Apply filters") is
+     what tells the two states apart, not the button's own vibrancy. */
+  .filter-apply-btn {
+    display: block;
+    width: 100%;
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.15s;
+    background: var(--ytf-teal);
+    color: #fff;
+  }
+
+  .filter-apply-btn:hover {
+    filter: brightness(0.95);
+  }
+
+  .ytf-airline.on .ytf-airline-name {
+    color: var(--ytf-teal);
+  }
+}
+
+/* The scroll-shadow background, scrollbar-gutter and thin-scrollbar treatment
+   that used to live here (desktop-only, on this element) moved to
+   `.ytf-drawer__body` in filterDrawer.scss — `.yt-flight-filter` is no longer
+   a scroll container (see the `overflow` comment above), so rules scoped to
+   it here would never paint. */
+
+/* Reset and the primary action are the two ways out of an over-filtered
+   result set, so neither may be something you scroll to find. */
+.ytf-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px 16px;
+  background: #fff;
+  border-top: 1px solid var(--ytf-line, #e6e9ef);
+}
+
+.ytf-footer__reset {
+  flex: none;
+  border: 1.5px solid var(--ytf-line, #e6e9ef);
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #fff;
+  font-size: 14px;
+  color: #475467;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  &.is-active {
+    color: #b42318;
+    border-color: rgba(180, 35, 24, 0.35);
+  }
+}
+
+.ytf-footer .filter-apply-btn {
+  flex: 1 1 auto;
+  display: block;
+}
+
+/* Rides on the count line while a provider is still in flight — see
+   `isLoadingMore`. Deliberately quiet: it is a status, not a warning. */
+.ytf-count-pending {
+  color: #9aa3af;
+  font-style: italic;
+}
+
+/* The "+" beside a section whose contents are still growing. */
+.ytf-section-growing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  border-radius: 8px;
+  background: #eef1f5;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 600;
+}

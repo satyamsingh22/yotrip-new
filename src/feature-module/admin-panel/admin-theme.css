@@ -1,0 +1,112 @@
+/* =========================================================================
+   Admin panel design system — Tailwind + shadcn tokens, scoped to .admin-area
+   The storefront stays on Bootstrap; nothing here leaks out of .admin-area.
+   ========================================================================= */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Design tokens (light, navy-forward) -------------------------------- */
+.admin-area {
+  --background: 220 33% 98%;
+  --foreground: 222 47% 12%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 12%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 12%;
+
+  --primary: 224 68% 26%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 220 23% 95%;
+  --secondary-foreground: 224 45% 22%;
+
+  --muted: 220 23% 95%;
+  --muted-foreground: 220 12% 46%;
+
+  --accent: 220 40% 96%;
+  --accent-foreground: 224 55% 24%;
+
+  --destructive: 0 78% 53%;
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 152 92% 38%;
+  --success-foreground: 0 0% 100%;
+
+  --warning: 43 100% 54%;
+  --warning-foreground: 30 60% 16%;
+
+  --info: 222 86% 51%;
+  --info-foreground: 0 0% 100%;
+
+  --border: 220 22% 90%;
+  --input: 220 22% 87%;
+  --ring: 224 70% 45%;
+
+  /* Deep navy nav rail */
+  --rail: 225 60% 12%;
+  --rail-foreground: 214 32% 90%;
+  --rail-muted: 220 20% 64%;
+  --rail-accent: 74 62% 56%;
+
+  --radius: 0.85rem;
+
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  color: hsl(var(--foreground));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Minimal scoped reset (preflight is OFF globally) ------------------- */
+/* Deliberately narrow: only normalise box model + headings/links so we don't
+   disturb any admin page still using Bootstrap markup during migration. */
+.admin-area,
+.admin-area *,
+.admin-area *::before,
+.admin-area *::after {
+  box-sizing: border-box;
+}
+.admin-area :where(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: hsl(var(--foreground));
+}
+.admin-area :where(button) {
+  font-family: inherit;
+}
+
+/* ---- Tasteful scrollbars inside the admin -------------------------------- */
+.admin-area .admin-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.admin-area .admin-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.admin-area .admin-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.45);
+  background-clip: content-box;
+}
+.admin-area .rail-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.admin-area .rail-scroll::-webkit-scrollbar-thumb {
+  background: hsl(0 0% 100% / 0.14);
+  border-radius: 999px;
+}
+
+@layer components {
+  /* Frosted top bar */
+  .admin-area .glass {
+    background: hsl(0 0% 100% / 0.72);
+    backdrop-filter: saturate(180%) blur(12px);
+  }
+}

@@ -1,0 +1,64 @@
+html[lang="ar"] body,
+html[lang="ar"] {
+  font-family: "Noto Sans Arabic", "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+html[lang="zh"] body,
+html[lang="zh"] {
+  font-family: "Noto Sans SC", "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+/* Keep language dropdown aligned to the trigger in both LTR and RTL */
+.language-switcher .dropdown-menu {
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  right: auto;
+}
+
+/* Bootstrap `.active` forces white text; our menu highlight is light gray,
+   so the selected row was nearly invisible. Keep dark text on a soft tint. */
+.language-switcher .dropdown-item {
+  color: #1d1d1d;
+}
+
+.language-switcher .dropdown-item:hover,
+.language-switcher .dropdown-item:focus {
+  color: #1d1d1d;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.language-switcher .dropdown-item.active,
+.language-switcher .dropdown-item:active {
+  color: #1d1d1d;
+  background-color: rgba(13, 110, 253, 0.12);
+  font-weight: 600;
+}
+
+.language-switcher .dropdown-item.active .text-muted,
+.language-switcher .dropdown-item.active span {
+  color: #1d1d1d !important;
+}
+
+/* Same contrast fix for the currency menu (Bootstrap `.active` = white text
+   on our light highlight made INR unreadable). */
+.currency-switcher .dropdown-item {
+  color: #1d1d1d;
+}
+
+.currency-switcher .dropdown-item:hover,
+.currency-switcher .dropdown-item:focus {
+  color: #1d1d1d;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.currency-switcher .dropdown-item.active,
+.currency-switcher .dropdown-item:active {
+  color: #1d1d1d;
+  background-color: rgba(13, 110, 253, 0.12);
+  font-weight: 600;
+}
+
+.currency-switcher .dropdown-item.active .text-muted,
+.currency-switcher .dropdown-item.active span {
+  color: #1d1d1d !important;
+}
