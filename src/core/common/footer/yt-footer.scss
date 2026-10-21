@@ -1,0 +1,295 @@
+/* Global footer (mock: "YoTrip Mediterranean Travel Showcase"): brand + four link
+   columns + deals/app aside, a landmark skyline strip, then the legal bar.
+   Scoped to .yt-footer so the theme's legacy `footer {}` rules don't apply. */
+footer.yt-footer {
+  --ft-ink: #0f2a6b;
+  --ft-soft: #5b6b85;
+  --ft-blue: #1a5cf5;
+  --ft-gutter: max(24px, calc(50vw - 700px));
+
+  position: relative;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(180deg, #f4f9fe 0%, #eef6fd 100%);
+  color: var(--ft-ink);
+  font-family: "Plus Jakarta Sans", "IBM Plex Sans", sans-serif;
+  overflow: hidden;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.yt-footer__main {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.15fr) minmax(0, 3fr) minmax(260px, 1.3fr);
+  gap: 32px;
+  padding: 56px var(--ft-gutter) 10px;
+}
+
+.yt-footer__brand {
+  padding-right: 28px;
+  border-right: 1px solid #dde7f3;
+}
+
+.yt-footer__logo img {
+  height: 56px;
+  width: auto;
+}
+
+.yt-footer__tagline {
+  margin: 18px 0 22px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #2b3b58;
+}
+
+.yt-footer__social {
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 17px;
+    box-shadow: 0 6px 14px rgba(20, 40, 90, 0.15);
+  }
+}
+.yt-footer__social-instagram { background: radial-gradient(circle at 30% 110%, #fdc155 0%, #f5683a 30%, #d62976 60%, #7b3fe4 100%); }
+.yt-footer__social-facebook { background: #1877f2; }
+.yt-footer__social-x { background: #fff; color: #111 !important; box-shadow: 0 0 0 1px #dde3ea, 0 6px 14px rgba(20, 40, 90, 0.08) !important; }
+.yt-footer__social-youtube { background: #ff0000; }
+.yt-footer__social-linkedin { background: #0a66c2; }
+
+.yt-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.yt-footer__col,
+.yt-footer__aside {
+  h5 {
+    position: relative;
+    margin: 0 0 16px;
+    padding-bottom: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ft-ink);
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 26px;
+      height: 3px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--ft-blue), #18a7a0);
+    }
+  }
+}
+
+.yt-footer .footer-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+
+  a {
+    font-size: 14.5px;
+    color: var(--ft-soft);
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--ft-blue);
+    }
+  }
+}
+
+.yt-footer__aside {
+  padding-left: 28px;
+  border-left: 1px solid #dde7f3;
+
+  h5::after {
+    display: none;
+  }
+  h5 {
+    padding-bottom: 0;
+    margin-bottom: 6px;
+  }
+  > p {
+    margin: 0 0 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ft-soft);
+  }
+}
+
+.yt-footer__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 26px;
+  margin-bottom: 26px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #1a5cf5 0%, #2a8de8 55%, #18b5c4 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(26, 92, 245, 0.25);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.yt-footer__stores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.yt-footer__store {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px 8px 12px;
+  border-radius: 10px;
+  background: #0b0b0d;
+  color: #fff;
+
+  > i {
+    font-size: 24px;
+  }
+  span {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+  small {
+    font-size: 9.5px;
+    letter-spacing: 0.03em;
+    opacity: 0.9;
+  }
+  b {
+    font-size: 17px;
+    font-weight: 600;
+  }
+}
+
+/* landmark skyline: cropped from the mock; its pale sky blends into the footer */
+.yt-footer__skyline {
+  height: clamp(96px, 8.2vw, 150px);
+  margin-top: 8px;
+  background: url("/assets/img/yt/footer/footer-skyline.webp") center bottom / auto 100% repeat-x;
+}
+
+.yt-footer__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 16px var(--ft-gutter) 20px;
+  background: #f7fbff;
+  border-top: 1px solid #e3ecf6;
+
+  p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 14px;
+    color: #2b3b58;
+  }
+}
+
+.yt-footer__sep {
+  color: #b7c4d6;
+}
+
+.yt-footer__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  i {
+    color: var(--ft-blue);
+  }
+}
+
+.yt-footer__legal {
+  display: flex;
+  gap: 0;
+
+  a {
+    padding: 0 14px;
+    font-size: 14px;
+    color: #2b3b58;
+    border-left: 1px solid #c9d5e5;
+
+    &:first-child {
+      border-left: 0;
+    }
+    &:hover {
+      color: var(--ft-blue);
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .yt-footer__main {
+    grid-template-columns: 1fr 1fr;
+  }
+  .yt-footer__cols {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+  .yt-footer__aside {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .yt-footer__brand {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .yt-footer__main {
+    grid-template-columns: 1fr;
+    padding-top: 40px;
+  }
+  .yt-footer__cols {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 20px;
+  }
+  .yt-footer__brand {
+    padding-right: 0;
+  }
+  .yt-footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .yt-footer__legal {
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    a {
+      padding: 0;
+      border-left: 0;
+    }
+  }
+}

@@ -40,7 +40,25 @@
     "flightFinder": "航班查询",
     "carRental": "租车",
     "availableOn": "可用平台：",
-    "copyright": "版权所有 © {{year}}。保留所有权利，{{brand}} · ATOL 保护 · 所有价格含税"
+    "copyright": "版权所有 © {{year}}。保留所有权利，{{brand}} · ATOL 保护 · 所有价格含税",
+    "tagline": "您的一站式旅行伙伴：机票、酒店、租车和难忘的度假套餐。",
+    "home": "首页",
+    "searchFlights": "搜索机票",
+    "searchHotels": "搜索酒店",
+    "carRentals": "租车",
+    "holidayPackages": "度假套餐",
+    "myBookings": "我的预订",
+    "popularDestinations": "热门目的地",
+    "dealsTitle": "获取旅行优惠与资讯",
+    "dealsSub": "第一时间了解独家优惠、新目的地和旅行贴士。",
+    "createAccount": "免费注册",
+    "appTitle": "下载 YoTrip 应用",
+    "appSub": "随时随地预订，享受应用专属优惠。",
+    "rights": "© {{year}} YoTrip. 保留所有权利。",
+    "atol": "受 ATOL 保护",
+    "taxes": "所有价格均含税",
+    "getOn": "下载于",
+    "downloadOn": "下载于"
   },
   "appUpdate": {
     "title": "YoTrip 已更新",
@@ -248,7 +266,18 @@
   "finalCta": {
     "title": "你的下一个故事从这里开始",
     "sub": "加入 200 万更聪明预订的旅客。免费注册 — 送你 500 YoPoints。",
-    "button": "免费创建账户"
+    "button": "免费创建账户",
+    "titleLead": "您的下一个故事",
+    "titleAccent": "从这里开始",
+    "subNew": "预订机票、酒店、租车和度假套餐——尽在一处。",
+    "flights": "机票",
+    "flightsSub": "全球最优惠",
+    "hotels": "酒店",
+    "hotelsSub": "高分住宿",
+    "cars": "租车",
+    "carsSub": "灵活选择",
+    "packages": "度假套餐",
+    "packagesSub": "机票 + 酒店 + 租车"
   },
   "halalBand": {
     "eyebrow": "行业首创",

@@ -9,6 +9,7 @@
  */
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
 import sharp from "sharp";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");

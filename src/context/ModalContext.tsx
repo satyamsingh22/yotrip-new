@@ -62,3 +62,6 @@ export const useModal = () => {
 
   return context;
 };
+
+/** Like useModal, but returns null outside a ModalProvider (shared chrome like the footer). */
+export const useModalOptional = () => useContext(ModalContext);

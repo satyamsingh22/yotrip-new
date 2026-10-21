@@ -41,7 +41,25 @@
     "flightFinder": "Flight Finder",
     "carRental": "Car Rental",
     "availableOn": "Available on :",
-    "copyright": "Copyright © {{year}}. All Rights Reserved, {{brand}} · ATOL protected · All prices include taxes"
+    "copyright": "Copyright © {{year}}. All Rights Reserved, {{brand}} · ATOL protected · All prices include taxes",
+    "tagline": "Your all-in-one travel companion for flights, hotels, car rentals and unforgettable holiday packages.",
+    "home": "Home",
+    "searchFlights": "Search Flights",
+    "searchHotels": "Search Hotels",
+    "carRentals": "Car Rentals",
+    "holidayPackages": "Holiday Packages",
+    "myBookings": "My Bookings",
+    "popularDestinations": "Popular Destinations",
+    "dealsTitle": "Get travel deals & updates",
+    "dealsSub": "Be the first to know about exclusive offers, new destinations and travel tips.",
+    "createAccount": "Create free account",
+    "appTitle": "Download the YoTrip App",
+    "appSub": "Book on the go. Exclusive app deals.",
+    "rights": "© {{year}} YoTrip. All Rights Reserved.",
+    "atol": "ATOL protected",
+    "taxes": "All prices include taxes",
+    "getOn": "GET IT ON",
+    "downloadOn": "Download on the"
   },
   "appUpdate": {
     "title": "YoTrip has just been updated",
@@ -303,7 +321,18 @@
   "finalCta": {
     "title": "Your next story starts here",
     "sub": "Join 2 million travellers booking smarter. Free to join — 500 YoPoints on us.",
-    "button": "Create free account"
+    "button": "Create free account",
+    "titleLead": "Your next story",
+    "titleAccent": "starts here",
+    "subNew": "Book flights, hotels, cars and holiday packages — all in one place.",
+    "flights": "Flights",
+    "flightsSub": "Best deals worldwide",
+    "hotels": "Hotels",
+    "hotelsSub": "Top-rated stays",
+    "cars": "Car Rentals",
+    "carsSub": "Flexible options",
+    "packages": "Holiday Packages",
+    "packagesSub": "Flights + Hotels + Cars"
   },
   "halalBand": {
     "eyebrow": "An industry first",

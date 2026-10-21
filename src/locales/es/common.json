@@ -40,7 +40,25 @@
     "flightFinder": "Buscador de vuelos",
     "carRental": "Alquiler de coches",
     "availableOn": "Disponible en :",
-    "copyright": "Copyright © {{year}}. Todos los derechos reservados, {{brand}} · Protegido por ATOL · Todos los precios incluyen impuestos"
+    "copyright": "Copyright © {{year}}. Todos los derechos reservados, {{brand}} · Protegido por ATOL · Todos los precios incluyen impuestos",
+    "tagline": "Tu compañero de viaje todo en uno para vuelos, hoteles, alquiler de coches y paquetes vacacionales inolvidables.",
+    "home": "Inicio",
+    "searchFlights": "Buscar vuelos",
+    "searchHotels": "Buscar hoteles",
+    "carRentals": "Alquiler de coches",
+    "holidayPackages": "Paquetes vacacionales",
+    "myBookings": "Mis reservas",
+    "popularDestinations": "Destinos populares",
+    "dealsTitle": "Recibe ofertas y novedades de viaje",
+    "dealsSub": "Sé el primero en conocer ofertas exclusivas, nuevos destinos y consejos de viaje.",
+    "createAccount": "Crear cuenta gratis",
+    "appTitle": "Descarga la app de YoTrip",
+    "appSub": "Reserva desde cualquier lugar. Ofertas exclusivas de la app.",
+    "rights": "© {{year}} YoTrip. Todos los derechos reservados.",
+    "atol": "Protegido por ATOL",
+    "taxes": "Todos los precios incluyen impuestos",
+    "getOn": "DISPONIBLE EN",
+    "downloadOn": "Descárgalo en"
   },
   "appUpdate": {
     "title": "YoTrip se acaba de actualizar",
@@ -248,7 +266,18 @@
   "finalCta": {
     "title": "Tu próxima historia empieza aquí",
     "sub": "Únete a 2 millones de viajeros que reservan con más inteligencia. Gratis — 500 YoPoints de regalo.",
-    "button": "Crear cuenta gratis"
+    "button": "Crear cuenta gratis",
+    "titleLead": "Tu próxima historia",
+    "titleAccent": "empieza aquí",
+    "subNew": "Reserva vuelos, hoteles, coches y paquetes vacacionales, todo en un solo lugar.",
+    "flights": "Vuelos",
+    "flightsSub": "Las mejores ofertas del mundo",
+    "hotels": "Hoteles",
+    "hotelsSub": "Estancias mejor valoradas",
+    "cars": "Alquiler de coches",
+    "carsSub": "Opciones flexibles",
+    "packages": "Paquetes vacacionales",
+    "packagesSub": "Vuelos + hoteles + coches"
   },
   "halalBand": {
     "eyebrow": "Una primicia del sector",

@@ -59,18 +59,22 @@ const REMOVED = [
 ];
 
 const KEPT = [
+  "Home",
   "Settings",
   "Profile",
+  "My Bookings",
   "About Us",
   "Careers",
+  "Halal Travel",
   "Contact Us",
   "Privacy Policy",
   "Delete Account",
   "Terms and Conditions",
   "Chat Support",
-  "Hotel",
-  "Flight Finder",
-  "Car Rental",
+  "Search Hotels",
+  "Search Flights",
+  "Car Rentals",
+  "Holiday Packages",
 ];
 
 describe("Footer link inventory", () => {
@@ -83,7 +87,8 @@ describe("Footer link inventory", () => {
 
   it.each(KEPT)("still renders %s", (label) => {
     renderFooter();
-    expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
+    // Privacy / Terms / Contact also repeat in the bottom legal bar
+    expect(screen.getAllByRole("link", { name: label }).length).toBeGreaterThan(0);
   });
 
   it("keeps the SDF notice trigger", () => {
@@ -93,9 +98,9 @@ describe("Footer link inventory", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps all five columns", () => {
+  it("keeps the four link columns", () => {
     renderFooter();
-    ["Pages", "Company", "Destinations", "Support", "Services"].forEach(
+    ["Pages", "Company", "Popular Destinations", "Support"].forEach(
       (heading) => {
         expect(
           screen.getByRole("heading", { name: heading }),
@@ -106,24 +111,41 @@ describe("Footer link inventory", () => {
 });
 
 describe("Footer service links", () => {
-  it("points Flight Finder at the live results page, not the placeholder grid", () => {
+  it("points Search Flights at the live results page, not the placeholder grid", () => {
     renderFooter();
-    expect(screen.getByRole("link", { name: "Flight Finder" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Search Flights" })).toHaveAttribute(
       "href",
       "/flight/flight-list",
     );
   });
 
-  it("points Hotel and Car Rental at their grids", () => {
+  it("points Search Hotels, Car Rentals and Holiday Packages at their grids", () => {
     renderFooter();
-    expect(screen.getByRole("link", { name: "Hotel" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Search Hotels" })).toHaveAttribute(
       "href",
       "/hotel/hotel-grid",
     );
-    expect(screen.getByRole("link", { name: "Car Rental" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Car Rentals" })).toHaveAttribute(
       "href",
       "/car/car-grid",
     );
+    expect(screen.getByRole("link", { name: "Holiday Packages" })).toHaveAttribute(
+      "href",
+      "/package/package-grid",
+    );
+  });
+
+  it("has no dead links anywhere in the footer (socials and app badges are not links)", () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={["/probe-route"]}>
+        <Footer />
+      </MemoryRouter>,
+    );
+    const dead = Array.from(container.querySelectorAll<HTMLAnchorElement>("a")).filter((a) => {
+      const href = a.getAttribute("href");
+      return href === "#" || href === "/probe-route";
+    });
+    expect(dead.map((a) => a.textContent)).toEqual(["India Travel: SDF Required"]);
   });
 });
 
@@ -219,5 +241,27 @@ describe("footerDestinationHref", () => {
     const params = new URLSearchParams(href.split("?")[1]);
     expect(params.get("city")).toBe("Ta’if");
     expect(params.get("country")).toBe("SA");
+  });
+});
+
+describe("Footer account CTA", () => {
+  it("opens the register modal (deals come with a free account — there is no newsletter API)", async () => {
+    const { ModalProvider, useModal } = await import("../../../context/ModalContext");
+    const userEvent = (await import("@testing-library/user-event")).default;
+    const Probe = () => {
+      const { registerOpen } = useModal();
+      return <div data-testid="register-open">{registerOpen ? "open" : "closed"}</div>;
+    };
+    render(
+      <MemoryRouter>
+        <ModalProvider>
+          <Footer />
+          <Probe />
+        </ModalProvider>
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("register-open")).toHaveTextContent("closed");
+    await userEvent.click(screen.getByRole("button", { name: /create free account/i }));
+    expect(screen.getByTestId("register-open")).toHaveTextContent("open");
   });
 });

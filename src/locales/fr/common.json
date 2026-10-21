@@ -40,7 +40,25 @@
     "flightFinder": "Recherche de vols",
     "carRental": "Location de voitures",
     "availableOn": "Disponible sur :",
-    "copyright": "Copyright © {{year}}. Tous droits réservés, {{brand}} · Protégé ATOL · Tous les prix incluent les taxes"
+    "copyright": "Copyright © {{year}}. Tous droits réservés, {{brand}} · Protégé ATOL · Tous les prix incluent les taxes",
+    "tagline": "Votre compagnon de voyage tout-en-un pour les vols, hôtels, locations de voitures et séjours inoubliables.",
+    "home": "Accueil",
+    "searchFlights": "Rechercher des vols",
+    "searchHotels": "Rechercher des hôtels",
+    "carRentals": "Location de voitures",
+    "holidayPackages": "Séjours tout compris",
+    "myBookings": "Mes réservations",
+    "popularDestinations": "Destinations populaires",
+    "dealsTitle": "Recevez offres et actualités voyage",
+    "dealsSub": "Soyez le premier informé des offres exclusives, nouvelles destinations et conseils de voyage.",
+    "createAccount": "Créer un compte gratuit",
+    "appTitle": "Téléchargez l'app YoTrip",
+    "appSub": "Réservez où que vous soyez. Offres exclusives dans l'app.",
+    "rights": "© {{year}} YoTrip. Tous droits réservés.",
+    "atol": "Protégé ATOL",
+    "taxes": "Tous les prix incluent les taxes",
+    "getOn": "DISPONIBLE SUR",
+    "downloadOn": "Télécharger dans l'"
   },
   "appUpdate": {
     "title": "YoTrip vient d'être mis à jour",
@@ -248,7 +266,18 @@
   "finalCta": {
     "title": "Votre prochaine histoire commence ici",
     "sub": "Rejoignez 2 millions de voyageurs qui réservent plus malin. Gratuit — 500 YoPoints offerts.",
-    "button": "Créer un compte gratuit"
+    "button": "Créer un compte gratuit",
+    "titleLead": "Votre prochaine histoire",
+    "titleAccent": "commence ici",
+    "subNew": "Réservez vols, hôtels, voitures et séjours — au même endroit.",
+    "flights": "Vols",
+    "flightsSub": "Les meilleures offres du monde",
+    "hotels": "Hôtels",
+    "hotelsSub": "Séjours les mieux notés",
+    "cars": "Location de voitures",
+    "carsSub": "Options flexibles",
+    "packages": "Séjours tout compris",
+    "packagesSub": "Vols + hôtels + voitures"
   },
   "halalBand": {
     "eyebrow": "Une première dans le secteur",

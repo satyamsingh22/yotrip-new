@@ -1,49 +1,41 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { ModalProvider, useModal } from "@/context/ModalContext";
 import FinalCta from "./FinalCta";
-
-// Surfaces the shared modal state so the test asserts on what the CTA actually
-// does, rather than on the presence of a link.
-function RegisterProbe() {
-  const { registerOpen } = useModal();
-  return (
-    <div data-testid="register-open">{registerOpen ? "open" : "closed"}</div>
-  );
-}
 
 const renderCta = () =>
   render(
     <MemoryRouter>
-      <ModalProvider>
-        <FinalCta />
-        <RegisterProbe />
-      </ModalProvider>
+      <FinalCta />
     </MemoryRouter>,
   );
 
 describe("FinalCta", () => {
-  it("opens the register modal instead of navigating to the dead /register page", async () => {
+  it("shows the closing headline", () => {
     renderCta();
-
-    expect(screen.getByTestId("register-open")).toHaveTextContent("closed");
-
-    await userEvent.click(
-      screen.getByRole("button", { name: /create free account/i }),
-    );
-
-    expect(screen.getByTestId("register-open")).toHaveTextContent("open");
+    expect(
+      screen.getByRole("heading", { name: /your next story\s*starts here/i }),
+    ).toBeInTheDocument();
   });
 
-  it("does not link to /register", () => {
+  it("links each product tile to its live search page", () => {
     renderCta();
+    const expected: [RegExp, string][] = [
+      [/^flights/i, "/flight/flight-list"],
+      [/^hotels/i, "/hotel/hotel-grid"],
+      [/^car rentals/i, "/car/car-grid"],
+      [/^holiday packages/i, "/package/package-grid"],
+    ];
+    for (const [name, href] of expected) {
+      expect(screen.getByRole("link", { name })).toHaveAttribute("href", href);
+    }
+  });
 
+  it("does not link to the dead /register page", () => {
+    renderCta();
     const registerLink = screen
       .queryAllByRole("link")
       .find((el) => el.getAttribute("href")?.startsWith("/register"));
-
     expect(registerLink).toBeUndefined();
   });
 });
