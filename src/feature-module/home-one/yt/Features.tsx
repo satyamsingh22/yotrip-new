@@ -1,7 +1,14 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { all_routes } from "../../router/all_routes";
+import { useHomeHeroSearch } from "@/context/HomeHeroSearchContext";
+import {
+  homeCarSearchPath,
+  homeFlightSearchPath,
+  homeHotelSearchPath,
+  type HomeSearchFocus,
+  type HomeSearchTab,
+} from "@/utils/homeSearchDeepLink";
 
 const ART = "/assets/img/yt/why";
 
@@ -39,24 +46,66 @@ type Card = {
   bodyKey: string;
   ctaKey: string;
   to?: string;
+  searchTab?: HomeSearchTab;
+  searchFocus?: HomeSearchFocus;
 };
 
 const CARDS: Card[] = [
-  { key: "ai", tone: "blue", icon: <PlaneIcon />, titleKey: "features.plannerTitle", bodyKey: "features.plannerBody2", ctaKey: "features.plannerCta" },
-  { key: "hotel", tone: "orange", icon: <BedIcon />, titleKey: "features.hotelTitle", bodyKey: "features.hotelBody", ctaKey: "features.hotelCta", to: all_routes.hotelGrid },
-  { key: "car", tone: "green", icon: <CarIcon />, titleKey: "features.carTitle", bodyKey: "features.carBody", ctaKey: "features.carCta", to: all_routes.carGrid },
-  { key: "alerts", tone: "pink", icon: <BellIcon />, titleKey: "features.alertsTitle", bodyKey: "features.alertsBody2", ctaKey: "features.alertsCta", to: all_routes.flightList },
+  {
+    key: "ai",
+    tone: "blue",
+    icon: <PlaneIcon />,
+    titleKey: "features.plannerTitle",
+    bodyKey: "features.plannerBody2",
+    ctaKey: "features.plannerCta",
+    to: homeFlightSearchPath(),
+    searchTab: "flights",
+    searchFocus: "flight-from",
+  },
+  {
+    key: "hotel",
+    tone: "orange",
+    icon: <BedIcon />,
+    titleKey: "features.hotelTitle",
+    bodyKey: "features.hotelBody",
+    ctaKey: "features.hotelCta",
+    to: homeHotelSearchPath(),
+    searchTab: "hotels",
+    searchFocus: "hotel-city",
+  },
+  {
+    key: "car",
+    tone: "green",
+    icon: <CarIcon />,
+    titleKey: "features.carTitle",
+    bodyKey: "features.carBody",
+    ctaKey: "features.carCta",
+    to: homeCarSearchPath(),
+    searchTab: "cars",
+    searchFocus: "car-pickup",
+  },
+  {
+    key: "alerts",
+    tone: "pink",
+    icon: <BellIcon />,
+    titleKey: "features.alertsTitle",
+    bodyKey: "features.alertsBody2",
+    ctaKey: "features.alertsCta",
+  },
 ];
 
 const Features = () => {
   const { t } = useTranslation();
+  const { goFromClick } = useHomeHeroSearch();
 
-  const body = (c: Card) => (
+  const body = (c: Card, linked: boolean) => (
     <>
       <span className={`why-card__icon why-card__icon--${c.tone}`}>{c.icon}</span>
-      <span className={`why-card__go why-card__go--${c.tone}`} aria-hidden>
-        <Arrow />
-      </span>
+      {linked ? (
+        <span className={`why-card__go why-card__go--${c.tone}`} aria-hidden>
+          <Arrow />
+        </span>
+      ) : null}
       <h3 className="why-card__title">{t(c.titleKey)}</h3>
       <p className="why-card__body">{t(c.bodyKey)}</p>
       <span className={`why-card__cta why-card__cta--${c.tone}`}>{t(c.ctaKey)}</span>
@@ -79,24 +128,37 @@ const Features = () => {
         <div className="why-grid">
           {CARDS.map((c, i) => {
             const style = { backgroundImage: `url(${ART}/card-${c.key}.webp)` };
-            const cls = `why-card why-card--${c.key} rv`;
-            return c.to ? (
-              <Link key={c.key} to={c.to} className={cls} style={style} data-aos="fade-up" data-aos-delay={i * 80}>
-                {body(c)}
-              </Link>
-            ) : (
-              // AI planner lives in the hero search — take the visitor there
-              <button
+            const linked = Boolean(c.to);
+            const cls = `why-card why-card--${c.key}${linked ? "" : " why-card--static"} rv`;
+            const aos = { "data-aos": "fade-up", "data-aos-delay": i * 80 };
+
+            if (!linked) {
+              return (
+                <article
+                  key={c.key}
+                  className={cls}
+                  style={style}
+                  {...aos}
+                  aria-label={t(c.titleKey)}
+                >
+                  {body(c, false)}
+                </article>
+              );
+            }
+
+            return (
+              <Link
                 key={c.key}
-                type="button"
+                to={c.to!}
                 className={cls}
                 style={style}
-                data-aos="fade-up"
-                data-aos-delay={i * 80}
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                {...aos}
+                onClick={(e) =>
+                  goFromClick(e, c.searchTab!, c.searchFocus)
+                }
               >
-                {body(c)}
-              </button>
+                {body(c, true)}
+              </Link>
             );
           })}
         </div>

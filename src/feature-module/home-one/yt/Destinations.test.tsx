@@ -12,28 +12,27 @@ const renderCards = () =>
   );
 
 describe("home destination cards", () => {
-  it("links each city to a flight search for that destination", () => {
+  it("links each city to homepage packages with that destination prefilled", () => {
     renderCards();
 
-    const expected: [string, string][] = [
-      ["Dubai", "DXB"],
-      ["Istanbul", "IST"],
-      ["Maldives", "MLE"],
-      ["Kuala Lumpur", "KUL"],
+    const expected: [string, string, string][] = [
+      ["Dubai", "Dubai", "AE"],
+      ["Istanbul", "Istanbul", "TR"],
+      ["Maldives", "Maldives", "MV"],
+      ["Kuala Lumpur", "Kuala Lumpur", "MY"],
     ];
 
-    for (const [city, code] of expected) {
-      const card = screen.getByText(city).closest("a");
-      expect(card, city).toHaveAttribute(
-        "href",
-        expect.stringContaining(`to=${code}`),
+    for (const [label, dest, country] of expected) {
+      const card = screen.getByText(label).closest("a");
+      const href = card?.getAttribute("href") ?? "";
+      expect(href, label).toContain("tab=packages");
+      expect(href, label).toContain(`destCountry=${country}`);
+      expect(href, label).toMatch(
+        new RegExp(`dest=${dest.replace(/\s+/g, "[+%20]")}`),
       );
     }
   });
 
-  // The cards used to print a hardcoded "LON → DXB". Every visitor departs from
-  // their own city, so a fixed origin on the card promised a route the search
-  // would never run.
   it("promises no origin airport it cannot honour", () => {
     renderCards();
 

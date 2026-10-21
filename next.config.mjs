@@ -14,13 +14,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
  * The "@" path alias comes from tsconfig.json paths.
  */
 export default function nextConfig(phase) {
-  const buildId = phase === PHASE_PRODUCTION_BUILD ? String(Date.now()) : ""
+  const buildId = phase === PHASE_PRODUCTION_BUILD
+    ? String(process.env.YOTRIP_BUILD_ID || Date.now())
+    : ""
   if (buildId) writeFileSync(path.join(__dirname, "public/version.json"), JSON.stringify({ buildId }))
 
   /** @type {import('next').NextConfig} */
   return {
     compiler: {
-      define: { __BUILD_ID__: JSON.stringify(buildId) },
+      define: { __BUILD_ID__: buildId },
     },
     turbopack: {
       root: __dirname,

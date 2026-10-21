@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { all_routes } from "../../router/all_routes";
+import { useHomeHeroSearch } from "@/context/HomeHeroSearchContext";
 import { homeFlightSearchPath } from "@/utils/homeSearchDeepLink";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/tockenapi/api";
@@ -47,6 +48,7 @@ const normalizeBookings = (payload: any): any[] => {
 
 const YourBookingsBand = () => {
   const { t } = useTranslation();
+  const { goFromClick } = useHomeHeroSearch();
   const { status } = useAuth();
   const loggedIn = status === "authenticated";
   const [cards, setCards] = useState<UpcomingBookingCard[]>([]);
@@ -114,7 +116,11 @@ const YourBookingsBand = () => {
                   ? t("yourBookings.viewMine")
                   : t("yourBookings.loginToView")}
               </Link>
-              <Link to={homeFlightSearchPath()} className="btn bookings-hero__secondary">
+              <Link
+                to={homeFlightSearchPath()}
+                className="btn bookings-hero__secondary"
+                onClick={(e) => goFromClick(e, "flights", "flight-from")}
+              >
                 <SearchIcon />
                 {t("yourBookings.exploreFlights")}
               </Link>

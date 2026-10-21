@@ -1,7 +1,15 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { all_routes } from "../../router/all_routes";
+import { useHomeHeroSearch } from "@/context/HomeHeroSearchContext";
+import {
+  homeCarSearchPath,
+  homeFlightSearchPath,
+  homeHotelSearchPath,
+  homePackageSearchPath,
+  type HomeSearchFocus,
+  type HomeSearchTab,
+} from "@/utils/homeSearchDeepLink";
 
 const PlaneIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -24,16 +32,52 @@ const BagIcon = () => (
   </svg>
 );
 
-const TILES: { key: string; tone: string; icon: ReactNode; to: string }[] = [
-  { key: "flights", tone: "blue", icon: <PlaneIcon />, to: all_routes.flightList },
-  { key: "hotels", tone: "orange", icon: <HotelIcon />, to: all_routes.hotelGrid },
-  { key: "cars", tone: "green", icon: <CarIcon />, to: all_routes.carGrid },
-  { key: "packages", tone: "purple", icon: <BagIcon />, to: all_routes.packageGrid },
+const TILES: {
+  key: string;
+  tone: string;
+  icon: ReactNode;
+  to: string;
+  tab: HomeSearchTab;
+  focus: HomeSearchFocus;
+}[] = [
+  {
+    key: "flights",
+    tone: "blue",
+    icon: <PlaneIcon />,
+    to: homeFlightSearchPath(),
+    tab: "flights",
+    focus: "flight-from",
+  },
+  {
+    key: "hotels",
+    tone: "orange",
+    icon: <HotelIcon />,
+    to: homeHotelSearchPath(),
+    tab: "hotels",
+    focus: "hotel-city",
+  },
+  {
+    key: "cars",
+    tone: "green",
+    icon: <CarIcon />,
+    to: homeCarSearchPath(),
+    tab: "cars",
+    focus: "car-pickup",
+  },
+  {
+    key: "packages",
+    tone: "purple",
+    icon: <BagIcon />,
+    to: homePackageSearchPath(),
+    tab: "packages",
+    focus: "package-destination",
+  },
 ];
 
 /** Closing band above the footer: "Your next story starts here" + the four products. */
 const FinalCta = () => {
   const { t } = useTranslation();
+  const { goFromClick } = useHomeHeroSearch();
 
   return (
     <section className="section section--story">
@@ -49,7 +93,12 @@ const FinalCta = () => {
 
         <div className="story-band__tiles">
           {TILES.map((tile) => (
-            <Link key={tile.key} to={tile.to} className={`story-tile story-tile--${tile.tone}`}>
+            <Link
+              key={tile.key}
+              to={tile.to}
+              className={`story-tile story-tile--${tile.tone}`}
+              onClick={(e) => goFromClick(e, tile.tab, tile.focus)}
+            >
               <span className="story-tile__icon">{tile.icon}</span>
               <span className="story-tile__text">
                 <strong>{t(`finalCta.${tile.key}`)}</strong>

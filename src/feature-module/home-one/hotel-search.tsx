@@ -32,7 +32,7 @@ import HotelSearchHeroBackdrop from "../../components/yt/HotelSearchHeroBackdrop
 import { useYoTripGuideOptional } from "../../context/YoTripGuideContext";
 
 
-const HotelSearch = ({ page }) => {
+const HotelSearch = ({ page, cityOpenTrigger = 0 }) => {
     const { t, i18n } = useTranslation()
     // Home card uses the same localized date format as the Flights tab.
     const dateFormat = page === "home" ? datePickerFormat(i18n.resolvedLanguage || i18n.language || "en") : "DD-MM-YYYY"
@@ -118,6 +118,10 @@ const HotelSearch = ({ page }) => {
         setIsCityOpen(true);
         ensureCitiesLoaded();
     };
+
+    useEffect(() => {
+        if (cityOpenTrigger > 0) openCityPanel();
+    }, [cityOpenTrigger]);
 
     const handleCitySelect = (item) => {
         setCity({

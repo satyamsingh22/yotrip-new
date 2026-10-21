@@ -27,6 +27,8 @@ interface CarLocationSelectProps {
   swapIcon?: boolean;
   onSwap?: () => void;
   placeholder?: string;
+  /** Increment to open the dropdown (homepage deep links). */
+  openTrigger?: number;
 }
 
 const truncate = (text: string, length: number) =>
@@ -42,6 +44,7 @@ export default function CarLocationSelect({
   swapIcon = false,
   onSwap,
   placeholder,
+  openTrigger = 0,
 }: CarLocationSelectProps) {
   const { t } = useTranslation();
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -56,6 +59,10 @@ export default function CarLocationSelect({
   const [loading, setLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const searchSeq = useRef(0);
+
+  useEffect(() => {
+    if (openTrigger > 0) setOpen(true);
+  }, [openTrigger]);
 
   useEffect(() => {
     if (open) {

@@ -17,7 +17,10 @@ import { disableBeforeToday } from "../../utils/dateValidation";
 import { datePickerFormat } from "../../i18n/AntdLocaleProvider";
 import { useYoTripGuideOptional } from "../../context/YoTripGuideContext";
 
-const PackageSearch = ({ page = "home" }) => {
+const PackageSearch = ({
+  page = "home",
+  destinationOpenTrigger = 0,
+}) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const yoGuide = useYoTripGuideOptional();
@@ -79,6 +82,15 @@ const PackageSearch = ({ page = "home" }) => {
       setLoadingCities(false);
     }
   }, [cities, loadingCities]);
+
+  const openDestinationPanel = useCallback(() => {
+    setIsCityOpen(true);
+    void ensureCitiesLoaded();
+  }, [ensureCitiesLoaded]);
+
+  useEffect(() => {
+    if (destinationOpenTrigger > 0) openDestinationPanel();
+  }, [destinationOpenTrigger, openDestinationPanel]);
 
   const handleTermChange = async (e) => {
     const value = e.target.value;

@@ -459,7 +459,7 @@ export const CarSearchProvider = ({ children }: { children: ReactNode }) => {
         setSearchMessage(data.message || null);
         setHasSearched(true);
 
-        if (import.meta.env.DEV && Array.isArray(data.vehicles)) {
+        if (process.env.NODE_ENV !== "production" && Array.isArray(data.vehicles)) {
           console.group(
             "%c🚗 Car Search — Image Summary (all results)",
             "color: #2563eb; font-weight: bold;",

@@ -21,10 +21,10 @@ describe("FinalCta", () => {
   it("links each product tile to its live search page", () => {
     renderCta();
     const expected: [RegExp, string][] = [
-      [/^flights/i, "/flight/flight-list"],
-      [/^hotels/i, "/hotel/hotel-grid"],
-      [/^car rentals/i, "/car/car-grid"],
-      [/^holiday packages/i, "/package/package-grid"],
+      [/^flights/i, "/index?tab=flights&focus=flight-from"],
+      [/^hotels/i, "/index?tab=hotels&focus=hotel-city"],
+      [/^car rentals/i, "/index?tab=cars&focus=car-pickup"],
+      [/^holiday packages/i, "/index?tab=packages&focus=package-destination"],
     ];
     for (const [name, href] of expected) {
       expect(screen.getByRole("link", { name })).toHaveAttribute("href", href);

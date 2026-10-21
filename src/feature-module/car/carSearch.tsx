@@ -43,12 +43,14 @@ interface CarSearchProps {
   onSearch?: () => void;
   showCategories?: boolean;
   page?: "home" | "results" | "listing";
+  pickupOpenTrigger?: number;
 }
 
 const CarSearch = ({
   onSearch,
   showCategories = true,
   page = "results",
+  pickupOpenTrigger = 0,
 }: CarSearchProps) => {
   const { t, i18n } = useTranslation();
   // Home card uses the same localized date format as the Flights tab.
@@ -203,6 +205,7 @@ const CarSearch = ({
             query={pickupQuery}
             onSelect={selectPickup}
             popular={popularLocations}
+            openTrigger={pickupOpenTrigger}
           />
 
           {showDropoffLocation ? (

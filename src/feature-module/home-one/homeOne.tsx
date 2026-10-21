@@ -34,6 +34,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { useFlightSearch } from "../../context/FlightSearchContext";
 import { useHotelSearch } from "../../context/HotelSearchContext";
+import { usePackageSearch } from "../../context/PackageSearchContext";
 import axios from "axios";
 import {
   buildAirportOptions,
@@ -56,6 +57,11 @@ import { useCalendarPanel } from "../flight/useCalendarPanel";
 import "../flight/fareCalendar.css";
 import { datePickerFormat } from "../../i18n/AntdLocaleProvider";
 import { scrollToSection } from "../../utils/scrollTo";
+import {
+  HomeHeroSearchProvider,
+  type HomeHeroSearchRequest,
+} from "../../context/HomeHeroSearchContext";
+import type { HomeSearchFocus } from "../../utils/homeSearchDeepLink";
 
 const CheckMini = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
@@ -239,6 +245,9 @@ const HomeOne = () => {
     setGuests,
   } = useHotelSearch();
 
+  const { setDestination: setPackageDestination, userCurrency: packageCurrency } =
+    usePackageSearch();
+
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultTime = dayjs("10:30 AM", "h:mm A");
@@ -246,6 +255,9 @@ const HomeOne = () => {
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [travellerOpen, setTravellerOpen] = useState(false);
   const [fromAirportOpenTrigger, setFromAirportOpenTrigger] = useState(0);
+  const [hotelCityOpenTrigger, setHotelCityOpenTrigger] = useState(0);
+  const [carPickupOpenTrigger, setCarPickupOpenTrigger] = useState(0);
+  const [packageDestOpenTrigger, setPackageDestOpenTrigger] = useState(0);
 
   // ── YoTrip homepage UI state ──
   const [activeTab, setActiveTab] = useState<
@@ -590,40 +602,106 @@ const HomeOne = () => {
     setMultiTrips(updatedTrips);
   };
 
+  const applyHomeHeroSearch = useCallback(
+    ({ tab, focus, packageDestination }: HomeHeroSearchRequest) => {
+      setActiveTab(tab);
+
+      if (tab === "packages" && packageDestination) {
+        setPackageDestination({
+          name: packageDestination.name,
+          country: packageDestination.country,
+          currency: packageCurrency || "INR",
+        });
+      }
+
+      const guideByTab = {
+        flights: {
+          pageContext: "flight" as const,
+          message:
+            "Flights — choose route, dates, and travellers, then search.",
+        },
+        hotels: {
+          pageContext: "hotel" as const,
+          message: "Hotels — pick a city, check-in/out, and guests.",
+        },
+        cars: {
+          pageContext: "car" as const,
+          message: "Cars — compare pickup options.",
+        },
+        packages: {
+          pageContext: "package" as const,
+          message: "Holiday packages — pick destination and dates.",
+        },
+      };
+      const hint = guideByTab[tab];
+      yoGuide?.setMood("explore", { ...hint, gesture: "point" });
+      yoGuide?.pulse();
+
+      window.setTimeout(() => {
+        scrollToSection("home-search");
+        if (focus === "flight-from") {
+          setFromAirportOpenTrigger((n) => n + 1);
+        } else if (focus === "hotel-city") {
+          setHotelCityOpenTrigger((n) => n + 1);
+        } else if (focus === "car-pickup") {
+          setCarPickupOpenTrigger((n) => n + 1);
+        } else if (focus === "package-destination" && !packageDestination) {
+          setPackageDestOpenTrigger((n) => n + 1);
+        }
+      }, 220);
+    },
+    [yoGuide, packageCurrency, setPackageDestination],
+  );
+
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab !== "flights") return;
+    if (
+      tab !== "flights" &&
+      tab !== "hotels" &&
+      tab !== "cars" &&
+      tab !== "packages"
+    ) {
+      return;
+    }
 
-    const focus = searchParams.get("focus");
-    setActiveTab("flights");
-    yoGuide?.setMood("explore", {
-      pageContext: "flight",
-      message: "Flights — choose route, dates, and travellers, then search.",
-      gesture: "point",
+    const rawFocus = searchParams.get("focus");
+    const validFocus: HomeSearchFocus[] = [
+      "flight-from",
+      "hotel-city",
+      "car-pickup",
+      "package-destination",
+    ];
+    const focus = validFocus.includes(rawFocus as HomeSearchFocus)
+      ? (rawFocus as HomeSearchFocus)
+      : undefined;
+
+    const destName = searchParams.get("dest")?.trim();
+    const destCountry = searchParams.get("destCountry")?.trim();
+    const packageDestination =
+      destName && destCountry
+        ? { name: destName, country: destCountry }
+        : undefined;
+
+    applyHomeHeroSearch({
+      tab,
+      focus: packageDestination ? undefined : focus,
+      packageDestination,
     });
-    yoGuide?.pulse();
-
-    const scrollTimer = window.setTimeout(() => {
-      scrollToSection("home-search");
-      if (focus === "flight-from") {
-        setFromAirportOpenTrigger((n) => n + 1);
-      }
-    }, 120);
 
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
         next.delete("tab");
         next.delete("focus");
+        next.delete("dest");
+        next.delete("destCountry");
         return next;
       },
       { replace: true },
     );
+  }, [searchParams, setSearchParams, applyHomeHeroSearch]);
 
-    return () => window.clearTimeout(scrollTimer);
-  }, [searchParams, setSearchParams, yoGuide]);
-
-  return (
+  const homeBody = (
     <div className="yt-home">
       {/* ═══════════ HERO ═══════════ */}
       {/* One backdrop for every tab — the search card is what changes. */}
@@ -1138,19 +1216,23 @@ const HomeOne = () => {
 
               {activeTab === "hotels" && (
                 <div className="embed-search">
-                  <HotelSearch page={"home"} />
+                  <HotelSearch page={"home"} cityOpenTrigger={hotelCityOpenTrigger} />
                 </div>
               )}
 
               {activeTab === "cars" && (
                 <div className="embed-search">
-                  <CarSearch page="home" showCategories={false} />
+                  <CarSearch
+                    page="home"
+                    showCategories={false}
+                    pickupOpenTrigger={carPickupOpenTrigger}
+                  />
                 </div>
               )}
 
               {activeTab === "packages" && (
                 <div className="embed-search">
-                  <PackageSearch page="home" />
+                  <PackageSearch page="home" destinationOpenTrigger={packageDestOpenTrigger} />
                 </div>
               )}
 
@@ -1186,6 +1268,11 @@ const HomeOne = () => {
     </div>
   );
 
+  return (
+    <HomeHeroSearchProvider focusSearch={applyHomeHeroSearch}>
+      {homeBody}
+    </HomeHeroSearchProvider>
+  );
 };
 
 

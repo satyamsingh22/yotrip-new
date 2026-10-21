@@ -1,33 +1,38 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { all_routes } from "../../router/all_routes";
+import { useHomeHeroSearch } from "@/context/HomeHeroSearchContext";
+import {
+  HOME_DESTINATION_PACKAGES,
+  type DestinationPackagePreset,
+} from "@/utils/destinationPackagePresets";
+import { homePackageDestinationPath } from "@/utils/homeSearchDeepLink";
 
-// `to` is the IATA code the flight results page searches for (?to=…). There is
-// deliberately no origin here: the traveller departs from wherever geo detection
-// put them, so printing a fixed "LON → DXB" on the card advertised a route the
-// search would never run.
 const TAGS = [
   {
-    to: "DXB",
     key: "dubai",
     img: "/assets/img/destination/destination-dubai.jpg",
+    package: HOME_DESTINATION_PACKAGES.dubai,
   },
   {
-    to: "IST",
     key: "istanbul",
     img: "/assets/img/destination/destination-istanbul.jpg",
+    package: HOME_DESTINATION_PACKAGES.istanbul,
   },
   {
-    to: "MLE",
     key: "maldives",
     img: "/assets/img/destination/destination-maldives.jpg",
+    package: HOME_DESTINATION_PACKAGES.maldives,
   },
   {
-    to: "KUL",
     key: "kualaLumpur",
     img: "/assets/img/destination/destination-kuala-lumpur.jpg",
+    package: HOME_DESTINATION_PACKAGES.kualaLumpur,
   },
-] as const;
+] as const satisfies ReadonlyArray<{
+  key: string;
+  img: string;
+  package: DestinationPackagePreset;
+}>;
 
 /** Category glyph on each card chip (mock: plane, landmark, palm, cutlery). */
 const TagIcon = ({ kind }: { kind: string }) => {
@@ -59,6 +64,7 @@ const TagIcon = ({ kind }: { kind: string }) => {
 
 const Destinations = () => {
   const { t } = useTranslation();
+  const { goPackageDestinationFromClick } = useHomeHeroSearch();
 
   return (
     <section className="section section--dest">
@@ -76,20 +82,18 @@ const Destinations = () => {
             <path d="M4 66 C 70 20, 130 80, 200 46 S 300 30, 330 30" />
             <path className="dest-head__plane" d="M330 18 l26 -8 -8 26 -6 -10 -12 -8z" />
           </svg>
-          <Link to={all_routes.flightList} className="dest-head__more">
-            {t("destinations.exploreAll")}
-          </Link>
         </div>
 
         <div className="dest-grid">
           {TAGS.map((tag, i) => (
             <Link
-              key={tag.to}
+              key={tag.key}
               className="dest-card rv"
               data-aos="fade-up"
               data-aos-delay={i * 80}
-              to={`${all_routes.flightList}?to=${tag.to}`}
-              aria-label={`${t(`destinations.${tag.key}.city`)} — ${t("destinations.searchFlights")}`}
+              to={homePackageDestinationPath(tag.package)}
+              onClick={(e) => goPackageDestinationFromClick(e, tag.package)}
+              aria-label={`${t(`destinations.${tag.key}.city`)} — ${t("nav.package")}`}
             >
               <span
                 className="dest-card__img"

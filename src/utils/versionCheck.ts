@@ -24,7 +24,7 @@ export const isOutdated = (
 };
 
 const versionUrl = () =>
-  `${import.meta.env.BASE_URL}version.json?ts=${Date.now()}`;
+  `/version.json?ts=${Date.now()}`;
 
 const fetchDeployedVersion = async (): Promise<VersionPayload> => {
   try {
@@ -45,7 +45,7 @@ export const startVersionWatcher = (
   onUpdate: () => void,
   { intervalMs = 60_000 }: { intervalMs?: number } = {},
 ): void => {
-  if (!import.meta.env.PROD || !CURRENT_BUILD_ID) return;
+  if (process.env.NODE_ENV !== "production" || !CURRENT_BUILD_ID) return;
 
   let notified = false;
   const check = async () => {
