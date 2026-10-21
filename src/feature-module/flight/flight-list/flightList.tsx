@@ -23,6 +23,11 @@ import axios from "axios";
 import FlightSearchLoader from "./FlightSearchLoader";
 import { Currency } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useModal } from "@/context/ModalContext";
+import {
+  isLoggedInForCheckout,
+  promptLoginForCheckout,
+} from "@/utils/requireLoginForCheckout";
 import api from "@/tockenapi/api";
 import toast from "react-hot-toast";
 import { getBrowserTimezone } from "../../../context/GeoDefaultsContext";
@@ -306,6 +311,7 @@ const FlightList = () => {
   // clicks instead of relying solely on the disabled attribute.
   const [revalidating, setRevalidating] = useState(false);
   const { status } = useAuth();
+  const { openLogin } = useModal();
 
   const navigate = useNavigate();
 
@@ -1645,6 +1651,10 @@ const FlightList = () => {
     if (revalidating) return;
     try {
       if (status === "loading") return;
+      if (!isLoggedInForCheckout(status)) {
+        promptLoginForCheckout(openLogin, "Please log in to continue to checkout.");
+        return;
+      }
 
       setLoading(true);
       setRevalidating(true);

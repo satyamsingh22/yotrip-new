@@ -5,7 +5,7 @@ import BookingForm from '../../../core/common/booking/bookingForm';
 import { useNavigate } from 'react-router-dom';
 import ImageWithBasePath from '../../../core/common/imageWithBasePath';
 import { useFlightSearch } from '../../../context/FlightSearchContext';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import dayjs from "dayjs";
 import PriceHoldTimer from '../../../core/common/PriceHoldTimer';
 import BannerCounter from '../../../core/common/banner-counter/counter';
@@ -15,6 +15,9 @@ import { heldFareCurrency } from '@/utils/currencies';
 import { describeRefund } from '@/utils/refundStatus';
 import { useIndiaArrivalNotice } from '../useIndiaArrivalNotice';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
+import { isLoggedInForCheckout, promptLoginForCheckout } from '@/utils/requireLoginForCheckout';
 
 
 const TripTypeBadge = ({ legs }) => {
@@ -52,6 +55,9 @@ const FlightBooking = () => {
 
     const routes = all_routes;
     const navigate = useNavigate();
+    const { status: authStatus } = useAuth();
+    const { openLogin } = useModal();
+    const loginPromptedRef = useRef(false);
     const {
         fromQuery,
         setFromQuery,
@@ -316,9 +322,13 @@ const FlightBooking = () => {
         }
     }, []);
 
-    // Guest checkout: the flight booking page is open to everyone. Logged-in
-    // users still get their details prefilled inside BookingForm; guests fill
-    // the form and can claim the booking later by logging in with the same email.
+    useEffect(() => {
+        if (authStatus === "loading" || loginPromptedRef.current) return;
+        if (!isLoggedInForCheckout(authStatus)) {
+            loginPromptedRef.current = true;
+            promptLoginForCheckout(openLogin, "Please log in to complete your flight booking.");
+        }
+    }, [authStatus, openLogin]);
 
     const breadcrumbs = [
         {

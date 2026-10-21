@@ -24,6 +24,12 @@ import { frequentFlyerAirlineOptions } from "@/utils/frequentFlyerAirlines";
 import { fetchSeatMap, seatFareTotal } from "@/utils/seatMap";
 import type { NormalizedSeatMap, SeatSelection } from "@/utils/seatMap";
 import SeatMapPicker from "@/core/common/booking/SeatMapPicker";
+import { useAuth } from "@/context/AuthContext";
+import { useModal } from "@/context/ModalContext";
+import {
+  isLoggedInForCheckout,
+  promptLoginForCheckout,
+} from "@/utils/requireLoginForCheckout";
 
 const normalizeSelectValue = (value: unknown): string => {
   if (value == null) return "";
@@ -71,6 +77,8 @@ type BookingFormProps = {
 const BookingForm = ({ onCouponChange, onSeatTotalChange }: BookingFormProps = {}) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { status: authStatus } = useAuth();
+  const { openLogin } = useModal();
   const [paymentRadio, setPaymentRadio] = useState("ccavenue");
   const [carGuaranteeCard, setCarGuaranteeCard] = useState({
     cardTypeCode: "VI",
@@ -467,9 +475,11 @@ const BookingForm = ({ onCouponChange, onSeatTotalChange }: BookingFormProps = {
   const handleCarBookingSubmit = async () => {
     if (!isCarBooking) return;
 
-    // Guest checkout: no login required. Contact email + phone are validated by
-    // validateAllFields() below; the booking is claimable later by logging in
-    // with the same email.
+    if (!isLoggedInForCheckout(authStatus)) {
+      promptLoginForCheckout(openLogin, "Please log in to complete your car booking.");
+      return;
+    }
+
     setSubmitAttempted(true);
 
     const isValid = validateAllFields();
@@ -562,9 +572,11 @@ const BookingForm = ({ onCouponChange, onSeatTotalChange }: BookingFormProps = {
     }
     if (!isFlightBooking) return;
 
-    // Guest checkout: no login required. Contact email + phone are validated by
-    // validateAllFields() below, and the booking is claimable later by logging
-    // in with the same email.
+    if (!isLoggedInForCheckout(authStatus)) {
+      promptLoginForCheckout(openLogin, "Please log in to complete your flight booking.");
+      return;
+    }
+
     setSubmitAttempted(true);
 
     const isValid = validateAllFields();

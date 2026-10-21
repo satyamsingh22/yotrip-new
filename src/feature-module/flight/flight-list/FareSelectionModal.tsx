@@ -13,6 +13,10 @@ import { useAuth } from "@/context/AuthContext";
 import { formatMoney } from "../../../utils/formatMoney";
 import { formatSabreTime } from "../../../utils/sabreTime";
 import { displayAirlineName } from "../../../utils/displayLabels";
+import {
+  isLoggedInForCheckout,
+  promptLoginForCheckout,
+} from "../../../utils/requireLoginForCheckout";
 
 type Props = {
   show: boolean;
@@ -216,20 +220,23 @@ const FareSelectionModal: React.FC<Props> = ({
         <div className="fare-foot">
           {!isLoggedIn && (
             <div className="fare-foot__note">
-              Have an account?{" "}
-              <button type="button" onClick={openLogin}>
+              <button type="button" onClick={() => promptLoginForCheckout(openLogin)}>
                 Log in
               </button>{" "}
-              for faster checkout — or just continue as a guest.
+              to continue to checkout.
             </div>
           )}
           <button
             type="button"
             className="fare-foot__cta"
             disabled={!selectedFare || !!busy}
-            onClick={() =>
-              effectiveSelectedId != null && onSelectFare(flight, effectiveSelectedId)
-            }
+            onClick={() => {
+              if (!isLoggedInForCheckout(status)) {
+                promptLoginForCheckout(openLogin, "Please log in to continue to checkout.");
+                return;
+              }
+              if (effectiveSelectedId != null) onSelectFare(flight, effectiveSelectedId);
+            }}
           >
             {busy
               ? "Verifying fare…"

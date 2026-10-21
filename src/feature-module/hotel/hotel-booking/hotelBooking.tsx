@@ -14,6 +14,9 @@ import api from '@/tockenapi/api';
 import { initiateCcavenuePayment } from '@/utils/ccavenuePayment';
 import CcavenuePaymentIcons from '@/core/common/payment/CcavenuePaymentIcons';
 import { stayNights } from '@/utils/hotelStay';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
+import { isLoggedInForCheckout, promptLoginForCheckout } from '@/utils/requireLoginForCheckout';
 
 const HotelBooking = () => {
     const { t } = useTranslation();
@@ -21,6 +24,8 @@ const HotelBooking = () => {
     const { selectedRoom, setSelectedRoom, guests, priceInfo, setPriceInfo, bookingKey, setBookingKey, checkIn, checkOut, guestDetails, setGuestDetails, correlationId, userCurrency } = useHotelSearch();
 
     const navigate = useNavigate();
+    const { status: authStatus } = useAuth();
+    const { openLogin } = useModal();
     const [searchParams] = useSearchParams();
     // Prefer priceInfo (from checkPrice) over URL — stale/missing ?provider= caused 503s.
     const provider =
@@ -156,6 +161,10 @@ const HotelBooking = () => {
     };
 
     const handleBooking = async () => {
+        if (!isLoggedInForCheckout(authStatus)) {
+            promptLoginForCheckout(openLogin, "Please log in to complete your hotel booking.");
+            return;
+        }
         if (!validateGuests()) return;
         if (!validateTripjackBilling()) return;
         if (!validateGuaranteeCard()) return;
