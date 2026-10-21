@@ -29,6 +29,7 @@ export type FareOption = {
     cabinText?: string;
   };
   hostnsell?: Record<string, unknown> | null;
+  isPreferred?: boolean;
 };
 
 // Penalty-aware refund status for the selected fare, fetched on demand from
@@ -65,7 +66,9 @@ export function groupFareOptionsByCabin(fareOptions: FareOption[]): CabinGroup[]
 
 export function pickRecommendedFareId(fares: FareOption[]): number | null {
   if (!fares?.length) return null;
-  return fares.reduce((min, f) => (f.price < min.price ? f : min), fares[0]).id;
+  const preferred = fares.filter((f) => f.isPreferred);
+  const pool = preferred.length ? preferred : fares;
+  return pool.reduce((min, f) => (f.price < min.price ? f : min), pool[0]).id;
 }
 
 export function normalizeFareOptions(flight: any): FareOption[] {

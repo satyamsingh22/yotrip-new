@@ -146,6 +146,9 @@ const FareCard: React.FC<Props> = ({
           {fare.cabinClass && (
             <span className="fare-card__cabin">
               {displayCabinClass(fare.cabinClass, t)}
+              {fare.bookingClass && fare.brandName
+                ? ` · Class ${fare.bookingClass}`
+                : ""}
             </span>
           )}
         </div>
