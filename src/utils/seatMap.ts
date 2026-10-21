@@ -1,4 +1,5 @@
 import api from "@/tockenapi/api";
+import { slimHostnsellForSeatMap } from "./hostnsellSeatMapPayload";
 
 export type SeatCell = {
   seatNumber: string; row: number; column: string;
@@ -37,7 +38,14 @@ export const fetchSeatMap = async (
   let lastErr: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const res = await api.post("/api/flights/seat-map", params, { timeout: timeoutMs });
+      const body =
+        String(params.provider || "").toLowerCase() === "hostnsell"
+          ? {
+              ...params,
+              hostnsell: slimHostnsellForSeatMap(params.hostnsell ?? null),
+            }
+          : params;
+      const res = await api.post("/api/flights/seat-map", body, { timeout: timeoutMs });
       return res.data?.seatMap ?? { provider: params.provider ?? "", currency: params.currency ?? "", segments: [] };
     } catch (err) {
       lastErr = err;
