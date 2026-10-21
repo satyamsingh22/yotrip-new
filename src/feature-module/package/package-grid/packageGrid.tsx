@@ -1,6 +1,5 @@
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import { all_routes } from "../../router/all_routes";
@@ -22,7 +21,6 @@ function stripHtml(text: string | null | undefined): string {
 
 const PackageGrid = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const {
     packages,
     loading,
@@ -33,12 +31,6 @@ const PackageGrid = () => {
     dateTo,
     searchPackages,
   } = usePackageSearch();
-
-  useEffect(() => {
-    if (!destination?.name && packages.length === 0 && !loading) {
-      navigate(all_routes.home1);
-    }
-  }, [destination, packages.length, loading, navigate]);
 
   const routes = all_routes;
   const nights =
@@ -76,6 +68,12 @@ const PackageGrid = () => {
               onRetry={() => void searchPackages()}
             />
           ) : null}
+
+          {!loading && !searchError && packages.length === 0 && !destination?.name && (
+            <div className="text-center py-5">
+              <p className="text-muted mb-0">{t("packageSearch.pickDestination")}</p>
+            </div>
+          )}
 
           {!loading && !searchError && packages.length === 0 && destination?.name && (
             <div className="text-center py-5">

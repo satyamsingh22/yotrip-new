@@ -1,15 +1,10 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import LoaderStageScenes from "@/components/loader/LoaderStageScenes";
+import { loaderStages, stageForPercent } from "@/components/loader/loaderStages";
 import "./FlightSearchLoader.scss";
 
-/** Full-screen loading scene; the progress card overlays it.
- *  Re-encoded with the baked-in border cropped off, a keyframe every 0.5s and
- *  fast-start (moov first) so it starts at once. */
-const LOADER_VIDEO = "/assets/video/yotrip-flight-loading.mp4?v=3";
-/** First frame of the same video — shown until it plays, and as the fallback
- *  (error / autoplay blocked / reduced motion), so the art never switches. */
-const LOADER_POSTER = "/assets/img/flight/flight-loader-video-poster.webp";
-/** Slowed so Yori's poses unfold over a typical search (10s clip → ~18s). */
-const PLAYBACK_RATE = 0.55;
+/** One storyboard scene per step, picked by the progress bar (never repeats). */
+const STAGE_IMAGES = loaderStages("/assets/img/flight/loader", "flight-stage");
 
 const TipBulb = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A6CF5" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -40,23 +35,16 @@ const TipShield = () => (
     <path d="m8.5 12 2.4 2.4L15.8 9.6" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
-const TipStar = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="#F5B301" aria-hidden>
-    <path d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" />
-  </svg>
-);
-
-/** Storyboard stages (status + tip) — advance with the progress %. */
-const STAGES: { min: number; status: string; tip: string; icon: ReactNode }[] = [
-  { min: 0, status: "Preparing your search...", tip: "Tuesday & Wednesday flights are usually cheaper!", icon: <TipBulb /> },
-  { min: 28, status: "Checking availability with 500+ airlines...", tip: "Flexible dates can save you more money!", icon: <TipGlobe /> },
-  { min: 52, status: "Finding the best routes...", tip: "Non-stop flights are faster and more convenient!", icon: <TipPlane /> },
-  { min: 68, status: "Exploring the best deals for you...", tip: "Sign in to get exclusive member deals!", icon: <TipTag /> },
-  { min: 86, status: "Comparing prices across airlines...", tip: "Check nearby airports for better prices!", icon: <TipShield /> },
-  { min: 96, status: "Almost done...", tip: "Booking in advance gives you the best fares!", icon: <TipStar /> },
+/** Status + tip per storyboard scene (same order as the flight-stage-N images). */
+const STAGES: { status: string; tip: string; icon: ReactNode }[] = [
+  { status: "Searching flights...", tip: "Tuesday & Wednesday flights are usually cheaper!", icon: <TipBulb /> },
+  { status: "Comparing prices across airlines...", tip: "Check nearby airports for better prices!", icon: <TipShield /> },
+  { status: "Checking seat availability...", tip: "Flexible dates can save you more money!", icon: <TipGlobe /> },
+  { status: "Applying the best deals...", tip: "Sign in to get exclusive member deals!", icon: <TipTag /> },
+  { status: "Finalizing your options...", tip: "Non-stop flights are faster and more convenient!", icon: <TipPlane /> },
 ];
 
-const PROGRESS_TAU_SEC = 11;
+const PROGRESS_TAU_SEC = 8; // ~5% → 80% (scene 5) in about 14s
 
 type FlightSearchLoaderProps = {
   fromCity?: string;
@@ -65,14 +53,6 @@ type FlightSearchLoaderProps = {
   toCode?: string;
 };
 
-function stageForPercent(percent: number) {
-  let current = STAGES[0];
-  for (const s of STAGES) {
-    if (percent >= s.min) current = s;
-  }
-  return current;
-}
-
 const FlightSearchLoader = ({
   fromCity,
   fromCode,
@@ -80,10 +60,9 @@ const FlightSearchLoader = ({
   toCode,
 }: FlightSearchLoaderProps) => {
   const [progress, setProgress] = useState(5);
-  const [useVideo, setUseVideo] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const percent = Math.min(100, Math.max(0, Math.round(progress)));
-  const stage = useMemo(() => stageForPercent(percent), [percent]);
+  const activeStep = stageForPercent(percent, STAGE_IMAGES.length);
+  const stage = STAGES[activeStep];
 
   const routeLabel =
     fromCity && toCity
@@ -93,7 +72,6 @@ const FlightSearchLoader = ({
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduceMotion) {
-      setUseVideo(false);
       setProgress(50);
       return;
     }
@@ -114,22 +92,6 @@ const FlightSearchLoader = ({
     };
   }, []);
 
-  // Plain playback. (Seeking currentTime on every frame stalled the decoder and
-  // left the poster or a frozen frame on screen — "sometimes image, sometimes video".)
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !useVideo) return;
-    const start = () => {
-      video.playbackRate = PLAYBACK_RATE;
-      void video.play().catch(() => {
-        /* autoplay blocked: the poster (same first frame) stays — no art switch */
-      });
-    };
-    if (video.readyState >= 1) start();
-    else video.addEventListener("loadedmetadata", start, { once: true });
-    return () => video.removeEventListener("loadedmetadata", start);
-  }, [useVideo]);
-
   return (
     <div
       className="fsl fsl--video-scene"
@@ -138,34 +100,16 @@ const FlightSearchLoader = ({
       aria-label={`Finding the best flights for ${routeLabel}`}
     >
       <div className="fsl__scene-wrap" aria-hidden>
-        {useVideo ? (
-          <video
-            ref={videoRef}
-            className="fsl__scene fsl__scene--video"
-            src={LOADER_VIDEO}
-            poster={LOADER_POSTER}
-            autoPlay
-            muted
-            playsInline
-            preload="auto"
-            onError={() => setUseVideo(false)}
-          />
-        ) : (
-          <img
-            src={LOADER_POSTER}
-            alt=""
-            className="fsl__scene fsl__scene--video"
-            draggable={false}
-          />
-        )}
+        <LoaderStageScenes images={STAGE_IMAGES} active={activeStep} />
       </div>
-
 
       <section className="fsl__card">
         <div className="fsl__card-main">
           <img src="/Yotrip-logo-no-bg.svg" alt="" className="fsl__card-mark" aria-hidden="true" />
           <div className="fsl__card-body">
-            <p className="fsl__status">{stage.status}</p>
+            <p className="fsl__status" key={activeStep}>
+              {activeStep + 1}/{STAGES.length} · {stage.status}
+            </p>
             <div className="fsl__progress">
               <div
                 className="fsl__progress-track"

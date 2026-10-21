@@ -50,24 +50,6 @@
   justify-content: center;
 }
 
-.fsl__scene {
-  display: block;
-  pointer-events: none;
-  user-select: none;
-}
-
-.fsl--video-scene .fsl__scene--video {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 0%;
-  // the clip's baked-in border was cropped in the file itself (no scale hack)
-}
-
 .fsl--video-scene .fsl__card {
   margin-top: 0;
   z-index: 2;

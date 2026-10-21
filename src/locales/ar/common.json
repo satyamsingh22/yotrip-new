@@ -59,7 +59,9 @@
     "atol": "محمي بـ ATOL",
     "taxes": "جميع الأسعار تشمل الضرائب",
     "getOn": "احصل عليه من",
-    "downloadOn": "حمّله من"
+    "downloadOn": "حمّله من",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "subscribe": "اشترك"
   },
   "appUpdate": {
     "title": "تم تحديث YoTrip للتو",

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import LoaderStageScenes from "@/components/loader/LoaderStageScenes";
+import { loaderStages, stageForPercent } from "@/components/loader/loaderStages";
 
 const STEP_DEFS = [
   { icon: "isax-search-status", labelKey: "carList.step1" },
@@ -16,16 +18,9 @@ const TIP_KEYS = [
   "carList.tip4",
 ] as const;
 
-const FLOAT_ICONS = [
-  "isax-car",
-  "isax-gas-station",
-  "isax-location",
-  "isax-map-1",
-  "isax-shield-tick",
-  "isax-driving",
-] as const;
+/** One storyboard scene per step, picked by the progress bar (never repeats). */
+const STAGE_IMAGES = loaderStages("/assets/img/cars/loader", "car-stage");
 
-const STEP_MS = 2000;
 const TIP_MS = 4000;
 
 type CarSearchLoaderProps = {
@@ -40,7 +35,6 @@ type CarSearchLoaderProps = {
 const CarSearchLoader = ({ scoped = false }: CarSearchLoaderProps) => {
   const { t } = useTranslation();
   const [progress, setProgress] = useState(4);
-  const [activeStep, setActiveStep] = useState(0);
   const [tipIndex, setTipIndex] = useState(0);
   const [pctBump, setPctBump] = useState(false);
 
@@ -54,19 +48,6 @@ const CarSearchLoader = ({ scoped = false }: CarSearchLoaderProps) => {
     [t],
   );
   const tips = useMemo(() => TIP_KEYS.map((key) => t(key)), [t]);
-
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 14 }, (_, i) => ({
-        id: i,
-        left: `${6 + ((i * 7) % 88)}%`,
-        delay: `${(i % 7) * 0.45}s`,
-        duration: `${7 + (i % 5) * 1.2}s`,
-        size: 4 + (i % 4) * 2,
-        drift: `${-18 + (i % 6) * 8}px`,
-      })),
-    [],
-  );
 
   useEffect(() => {
     const started = performance.now();
@@ -90,12 +71,6 @@ const CarSearchLoader = ({ scoped = false }: CarSearchLoaderProps) => {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setActiveStep((prev) => Math.min(prev + 1, STEP_DEFS.length - 1));
-    }, STEP_MS);
-    return () => window.clearInterval(id);
-  }, []);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -105,6 +80,7 @@ const CarSearchLoader = ({ scoped = false }: CarSearchLoaderProps) => {
   }, []);
 
   const percent = Math.round(progress);
+  const activeStep = stageForPercent(percent, STAGE_IMAGES.length);
   const loaderTitle = t("carList.loaderTitle");
 
   return (
@@ -114,105 +90,11 @@ const CarSearchLoader = ({ scoped = false }: CarSearchLoaderProps) => {
       aria-live="polite"
       aria-label={loaderTitle}
     >
-      <div className="csl__hero" aria-hidden="true">
-        <div
-          className="csl__hero-img"
-          style={{
-            backgroundImage:
-              "url(/assets/img/cars/car-search-loader-hero.jpg)",
-          }}
-        />
-        <div className="csl__hero-scrim" />
-        <div className="csl__scan" />
-        <div className="csl__glow csl__glow--a" />
-        <div className="csl__glow csl__glow--b" />
-        <div className="csl__dots csl__dots--tl" />
-        <div className="csl__dots csl__dots--br" />
-        <div className="csl__particles">
-          {particles.map((p) => (
-            <span
-              key={p.id}
-              className="csl__particle"
-              style={{
-                left: p.left,
-                width: p.size,
-                height: p.size,
-                animationDelay: p.delay,
-                animationDuration: p.duration,
-                ["--csl-drift" as string]: p.drift,
-              }}
-            />
-          ))}
-        </div>
-        <div className="csl__floaters">
-          {FLOAT_ICONS.map((icon, i) => (
-            <span
-              key={icon}
-              className={`csl__floater csl__floater--${i + 1}`}
-              style={{ animationDelay: `${i * 0.55}s` }}
-            >
-              <i className={`isax ${icon}`} />
-            </span>
-          ))}
-        </div>
-        <div className="csl__wave" />
+      <div className="csl__hero">
+        <LoaderStageScenes images={STAGE_IMAGES} active={activeStep} />
       </div>
 
       <div className="csl__content">
-        <header className="csl__header">
-          <div className="csl__logo-wrap">
-            <span className="csl__logo-ring" />
-            <img
-              src="/assets/img/logo-dark.svg"
-              alt="YoTrip"
-              className="csl__logo"
-            />
-          </div>
-          <h1 className="csl__title">
-            <span className="csl__title-text">{loaderTitle}</span>
-            <span className="csl__ellipsis" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </span>
-          </h1>
-          <p className="csl__subtitle" key={activeStep}>
-            {steps[activeStep].label}…
-          </p>
-        </header>
-
-        <ol className="csl__steps">
-          {steps.map((step, index) => {
-            const done = index < activeStep;
-            const current = index === activeStep;
-            return (
-              <li
-                key={step.labelKey}
-                className={[
-                  "csl__step",
-                  done ? "is-done" : "",
-                  current ? "is-active" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                style={{ animationDelay: `${0.12 + index * 0.08}s` }}
-              >
-                {index > 0 ? (
-                  <span className="csl__connector" aria-hidden="true">
-                    <span className="csl__connector-flow" />
-                  </span>
-                ) : null}
-                <span className="csl__step-icon" aria-hidden="true">
-                  <span className="csl__step-ripple" />
-                  <span className="csl__step-ripple csl__step-ripple--delay" />
-                  <i className={`isax ${step.icon}`} />
-                </span>
-                <span className="csl__step-label">{step.label}</span>
-              </li>
-            );
-          })}
-        </ol>
-
         <div className="csl__spacer" aria-hidden="true" />
 
         <section className="csl__card">
@@ -226,9 +108,11 @@ const CarSearchLoader = ({ scoped = false }: CarSearchLoaderProps) => {
                 aria-hidden="true"
               />
             </span>
-            <p className="csl__card-copy">
-              Please wait while we search hundreds of{" "}
-              <strong className="csl__highlight">cars</strong> for you.
+            <p className="csl__card-copy" key={activeStep}>
+              <strong className="csl__highlight">
+                {activeStep + 1}/{steps.length}
+              </strong>{" "}
+              {steps[activeStep].label}…
             </p>
           </div>
 
@@ -239,6 +123,7 @@ const CarSearchLoader = ({ scoped = false }: CarSearchLoaderProps) => {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={percent}
+              aria-valuetext={`${percent}% — ${steps[activeStep].label}`}
             >
               <div
                 className="csl__progress-fill"
@@ -299,6 +184,7 @@ const CarSearchLoader = ({ scoped = false }: CarSearchLoaderProps) => {
           inset: 0;
           overflow: hidden;
         }
+
 
         .csl__hero-img {
           position: absolute;

@@ -15,6 +15,8 @@ interface AirportSelectProps {
   popular: AirportOption[];
   swapIcon?: boolean;
   onSwap?: () => void;
+  /** Increment to open the dropdown (homepage deep links). */
+  openTrigger?: number;
 }
 
 const truncate = (text: string, length: number) =>
@@ -125,12 +127,17 @@ export default function AirportSelect({
   popular,
   swapIcon = false,
   onSwap,
+  openTrigger = 0,
 }: AirportSelectProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState("");
   const [recent, setRecent] = useState<AirportOption[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (openTrigger > 0) setOpen(true);
+  }, [openTrigger]);
 
   useEffect(() => {
     if (open) {

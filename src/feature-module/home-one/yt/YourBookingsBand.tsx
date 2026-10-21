@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { all_routes } from "../../router/all_routes";
+import { homeFlightSearchPath } from "@/utils/homeSearchDeepLink";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/tockenapi/api";
 import {
@@ -113,7 +114,7 @@ const YourBookingsBand = () => {
                   ? t("yourBookings.viewMine")
                   : t("yourBookings.loginToView")}
               </Link>
-              <Link to={all_routes.flightList} className="btn bookings-hero__secondary">
+              <Link to={homeFlightSearchPath()} className="btn bookings-hero__secondary">
                 <SearchIcon />
                 {t("yourBookings.exploreFlights")}
               </Link>

@@ -1,0 +1,64 @@
+/* Full-screen storyboard scene for the search loaders (no card on top).
+   Scenes are ~16:9 (1672×941). Cover + top anchor fills the viewport with no
+   letterbox gap; a little bottom floor may crop on tall screens. */
+.lss {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #0b1f3a;
+}
+
+.lss__stage {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+
+  &.is-active {
+    opacity: 1;
+  }
+}
+
+// sides: a blurred copy of the same scene, so narrower scenes never show bars
+.lss__fill {
+  position: absolute;
+  inset: -40px;
+  background-size: cover;
+  background-position: top center;
+  filter: blur(26px) saturate(1.1) brightness(0.92);
+}
+
+// the scene itself: edge-to-edge, logo/stepper pinned to the top of the frame
+.lss__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lss__stage {
+    transition: none;
+  }
+}
+
+/* The scenes carry their own step title and dots, so the progress card is kept
+   only for screen readers (status text + progressbar), not shown. */
+.csl__card,
+.hsl__card,
+.fsl__card {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.fsl--video-scene .fsl__scene-wrap::after {
+  display: none;
+}

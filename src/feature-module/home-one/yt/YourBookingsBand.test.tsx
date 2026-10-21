@@ -26,5 +26,8 @@ describe("YourBookingsBand", () => {
     expect(
       screen.getByRole("link", { name: /log in to view your bookings/i }),
     ).toHaveAttribute("href", "/your-bookings");
+    expect(
+      screen.getByRole("link", { name: /explore flights/i }),
+    ).toHaveAttribute("href", "/index?tab=flights&focus=flight-from");
   });
 });

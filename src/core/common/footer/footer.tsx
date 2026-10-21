@@ -125,11 +125,37 @@ const Footer = () => {
         <div className="yt-footer__aside">
           <h5>{t("footer.dealsTitle")}</h5>
           <p>{t("footer.dealsSub")}</p>
-          {/* No newsletter backend: deals and alerts come with a free account */}
+          {/* No newsletter backend: deals and alerts come with a free account,
+              so Subscribe validates the email and opens sign-up. */}
           {modal ? (
-            <button type="button" className="yt-footer__cta" onClick={modal.openRegister}>
-              {t("footer.createAccount")}
-            </button>
+            <form
+              className="yt-footer__subscribe"
+              noValidate
+              onSubmit={(e) => {
+                e.preventDefault();
+                const input = e.currentTarget.elements.namedItem("email") as HTMLInputElement;
+                if (!input.checkValidity() || !input.value.trim()) {
+                  input.reportValidity();
+                  return;
+                }
+                modal.openRegister();
+              }}
+            >
+              <label className="yt-footer__email">
+                <i className="fa-regular fa-envelope" aria-hidden />
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  autoComplete="email"
+                  placeholder={t("footer.emailPlaceholder")}
+                  aria-label={t("footer.emailPlaceholder")}
+                />
+              </label>
+              <button type="submit" className="yt-footer__cta">
+                {t("footer.subscribe")}
+              </button>
+            </form>
           ) : null}
 
           <h5 className="yt-footer__app-title">{t("footer.appTitle")}</h5>

@@ -58,7 +58,9 @@
     "atol": "受 ATOL 保护",
     "taxes": "所有价格均含税",
     "getOn": "下载于",
-    "downloadOn": "下载于"
+    "downloadOn": "下载于",
+    "emailPlaceholder": "输入您的电子邮箱",
+    "subscribe": "订阅"
   },
   "appUpdate": {
     "title": "YoTrip 已更新",

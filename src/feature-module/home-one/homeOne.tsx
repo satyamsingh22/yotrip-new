@@ -1,7 +1,7 @@
 //@ts-nocheck
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { useTranslation, Trans } from "react-i18next";
-import { Link, Router, useNavigate } from "react-router-dom";
+import { Link, Router, useNavigate, useSearchParams } from "react-router-dom";
 import ImageWithBasePath from "../../core/common/imageWithBasePath";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -55,6 +55,7 @@ import { useFareCalendar } from "../flight/useFareCalendar";
 import { useCalendarPanel } from "../flight/useCalendarPanel";
 import "../flight/fareCalendar.css";
 import { datePickerFormat } from "../../i18n/AntdLocaleProvider";
+import { scrollToSection } from "../../utils/scrollTo";
 
 const CheckMini = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
@@ -239,10 +240,12 @@ const HomeOne = () => {
   } = useHotelSearch();
 
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const defaultTime = dayjs("10:30 AM", "h:mm A");
   const [flightRadio, setFlightRadio] = useState<string>("oneway");
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [travellerOpen, setTravellerOpen] = useState(false);
+  const [fromAirportOpenTrigger, setFromAirportOpenTrigger] = useState(0);
 
   // ── YoTrip homepage UI state ──
   const [activeTab, setActiveTab] = useState<
@@ -587,6 +590,39 @@ const HomeOne = () => {
     setMultiTrips(updatedTrips);
   };
 
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab !== "flights") return;
+
+    const focus = searchParams.get("focus");
+    setActiveTab("flights");
+    yoGuide?.setMood("explore", {
+      pageContext: "flight",
+      message: "Flights — choose route, dates, and travellers, then search.",
+      gesture: "point",
+    });
+    yoGuide?.pulse();
+
+    const scrollTimer = window.setTimeout(() => {
+      scrollToSection("home-search");
+      if (focus === "flight-from") {
+        setFromAirportOpenTrigger((n) => n + 1);
+      }
+    }, 120);
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("tab");
+        next.delete("focus");
+        return next;
+      },
+      { replace: true },
+    );
+
+    return () => window.clearTimeout(scrollTimer);
+  }, [searchParams, setSearchParams, yoGuide]);
+
   return (
     <div className="yt-home">
       {/* ═══════════ HERO ═══════════ */}
@@ -638,7 +674,7 @@ const HomeOne = () => {
           <p className="hero-sub">{t("home.sub")}</p>
 
           <div className="hero-stage">
-            <div className="search-card" role="search">
+            <div className="search-card" id="home-search" role="search">
             <div className="search-tabs-row">
             <div className="search-tabs" role="tablist">
               <button
@@ -768,6 +804,7 @@ const HomeOne = () => {
                           onSelect={handleFromAirportSelect}
                           search={searchAirportQuery}
                           popular={popularAirports}
+                          openTrigger={fromAirportOpenTrigger}
                         />
                       </div>
 

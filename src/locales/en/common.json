@@ -59,7 +59,9 @@
     "atol": "ATOL protected",
     "taxes": "All prices include taxes",
     "getOn": "GET IT ON",
-    "downloadOn": "Download on the"
+    "downloadOn": "Download on the",
+    "emailPlaceholder": "Enter your email",
+    "subscribe": "Subscribe"
   },
   "appUpdate": {
     "title": "YoTrip has just been updated",

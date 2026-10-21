@@ -261,7 +261,11 @@ describe("Footer account CTA", () => {
       </MemoryRouter>,
     );
     expect(screen.getByTestId("register-open")).toHaveTextContent("closed");
-    await userEvent.click(screen.getByRole("button", { name: /create free account/i }));
+    // an empty / invalid email does not open sign-up
+    await userEvent.click(screen.getByRole("button", { name: /subscribe/i }));
+    expect(screen.getByTestId("register-open")).toHaveTextContent("closed");
+    await userEvent.type(screen.getByRole("textbox", { name: /email/i }), "traveller@example.com");
+    await userEvent.click(screen.getByRole("button", { name: /subscribe/i }));
     expect(screen.getByTestId("register-open")).toHaveTextContent("open");
   });
 });

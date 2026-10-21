@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import LoaderStageScenes from "@/components/loader/LoaderStageScenes";
+import { loaderStages, stageForPercent } from "@/components/loader/loaderStages";
 
 const STEPS = [
   { icon: "isax-buildings5", labelKey: "step1" },
@@ -11,7 +13,9 @@ const STEPS = [
 
 const TIP_KEYS = ["tip1", "tip2", "tip3", "tip4"] as const;
 
-const STEP_MS = 2200;
+/** One storyboard scene per step, picked by the progress bar (never repeats). */
+const STAGE_IMAGES = loaderStages("/assets/img/hotels/loader", "hotel-stage");
+
 const TIP_MS = 4200;
 
 /**
@@ -26,7 +30,6 @@ type HotelSearchLoaderProps = {
 const HotelSearchLoader = ({ scoped = false }: HotelSearchLoaderProps) => {
   const { t } = useTranslation();
   const [progress, setProgress] = useState(4);
-  const [activeStep, setActiveStep] = useState(0);
   const [tipIndex, setTipIndex] = useState(0);
 
   useEffect(() => {
@@ -47,19 +50,14 @@ const HotelSearchLoader = ({ scoped = false }: HotelSearchLoaderProps) => {
 
   useEffect(() => {
     const id = window.setInterval(() => {
-      setActiveStep((prev) => Math.min(prev + 1, STEPS.length - 1));
-    }, STEP_MS);
-    return () => window.clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
       setTipIndex((prev) => (prev + 1) % TIP_KEYS.length);
     }, TIP_MS);
     return () => window.clearInterval(id);
   }, []);
 
   const percent = Math.round(progress);
+  const activeStep = stageForPercent(percent, STAGE_IMAGES.length);
+  const stepLabel = t(`hotelList.${STEPS[activeStep].labelKey}`);
   const loaderTitle = t("hotelList.loaderTitle");
 
   return (
@@ -69,63 +67,11 @@ const HotelSearchLoader = ({ scoped = false }: HotelSearchLoaderProps) => {
       aria-live="polite"
       aria-label={loaderTitle}
     >
-      <div className="hsl__hero" aria-hidden="true">
-        <div
-          className="hsl__hero-img"
-          style={{
-            backgroundImage:
-              "url(/assets/img/hotels/hotel-search-loader-hero.jpg)",
-          }}
-        />
-        <div className="hsl__hero-scrim" />
+      <div className="hsl__hero">
+        <LoaderStageScenes images={STAGE_IMAGES} active={activeStep} />
       </div>
 
       <div className="hsl__content">
-        <header className="hsl__header">
-          <img
-            src="/assets/img/logo-dark.svg"
-            alt="YoTrip"
-            className="hsl__logo"
-          />
-          <h1 className="hsl__title">
-            {loaderTitle}
-            <span className="hsl__ellipsis" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </span>
-          </h1>
-        </header>
-
-        <ol className="hsl__steps">
-          {STEPS.map((step, index) => {
-            const done = index < activeStep;
-            const current = index === activeStep;
-            return (
-              <li
-                key={step.labelKey}
-                className={[
-                  "hsl__step",
-                  done ? "is-done" : "",
-                  current ? "is-active" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {index > 0 ? (
-                  <span className="hsl__connector" aria-hidden="true" />
-                ) : null}
-                <span className="hsl__step-icon" aria-hidden="true">
-                  <i className={`isax ${step.icon}`} />
-                </span>
-                <span className="hsl__step-label">
-                  {t(`hotelList.${step.labelKey}`)}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
-
         <div className="hsl__spacer" aria-hidden="true" />
 
         <section className="hsl__card">
@@ -136,9 +82,11 @@ const HotelSearchLoader = ({ scoped = false }: HotelSearchLoaderProps) => {
               className="hsl__card-mark"
               aria-hidden="true"
             />
-            <p className="hsl__card-copy">
-              Please wait while we search hundreds of{" "}
-              <strong>hotels &amp; resorts</strong>
+            <p className="hsl__card-copy" key={activeStep}>
+              <strong>
+                {activeStep + 1}/{STEPS.length}
+              </strong>{" "}
+              {stepLabel}…
             </p>
           </div>
 
@@ -149,6 +97,7 @@ const HotelSearchLoader = ({ scoped = false }: HotelSearchLoaderProps) => {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={percent}
+              aria-valuetext={`${percent}% — ${stepLabel}`}
             >
               <div
                 className="hsl__progress-fill"
