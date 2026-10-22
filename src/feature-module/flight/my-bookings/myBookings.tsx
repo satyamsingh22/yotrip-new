@@ -1,11 +1,45 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
 import { all_routes } from "../../router/all_routes";
 import api from "@/tockenapi/api";
 import toast from "react-hot-toast";
 import { useModal } from "@/context/ModalContext";
 import { parseBookingTab, type BookingTab } from "@/utils/yourBookings";
+import {
+  BookingCard,
+  CardLogo,
+  DetailsModal,
+  RouteLine,
+  type DetailRow,
+  type MenuAction,
+} from "./BookingCards";
+import {
+  STATUS_FILTERS,
+  daysUntil,
+  displayStatus,
+  formatDay,
+  formatDuration,
+  matchesQuery,
+  parseDate,
+  statusNote,
+  titleCase,
+  type StatusFilter,
+} from "./bookingView";
+import "./my-bookings.scss";
+
+type FlightSegment = {
+  originCode?: string;
+  originName?: string;
+  destinationCode?: string;
+  destinationName?: string;
+  airlineCode?: string;
+  airlineName?: string;
+  flightNumber?: string;
+  departureDate?: string;
+  arrivalDate?: string;
+  durationMinutes?: number;
+  cabin?: string;
+};
 
 type FlightBooking = {
   id: string;
@@ -25,6 +59,7 @@ type FlightBooking = {
   departureTime?: string;
   arrivalTime?: string;
   ticketNumbers?: string[];
+  segments?: FlightSegment[];
   price: string;
   date: string;
 };
@@ -108,21 +143,6 @@ const flightNeedsHostnsellSync = (booking: FlightBooking) =>
 
 const hotelConfirmation = (booking: HotelBooking) =>
   booking.confirmationId || booking.sabreOrderId || "—";
-
-const statusBadgeClass = (label: string) => {
-  switch (label) {
-    case "Upcoming":
-      return "badge-info";
-    case "Pending":
-      return "badge-secondary";
-    case "Cancelled":
-      return "badge-danger";
-    case "Completed":
-      return "badge-success";
-    default:
-      return "badge-secondary";
-  }
-};
 
 const MyBookings = () => {
   const routes = all_routes;
@@ -487,596 +507,541 @@ const MyBookings = () => {
     }
   };
 
-  const breadcrumbs = [
-    { label: "Home", link: routes.home1, active: false },
-    { label: "Your Bookings", active: true },
-  ];
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [details, setDetails] = useState<{ title: string; rows: DetailRow[] } | null>(null);
+
+  const flightCards = useMemo(
+    () =>
+      flightBookings.map((booking) => {
+        const segs = booking.segments || [];
+        const first = segs[0];
+        const last = segs[segs.length - 1];
+        const [fromFallback = "—", toFallback = "—"] = booking.from_to
+          .split("→")
+          .map((x) => x.trim());
+        const departs = parseDate(first?.departureDate) || parseDate(booking.travelDate);
+        const arrives = parseDate(last?.arrivalDate);
+        const status = displayStatus(booking.statusLabel, departs);
+        const minutes = segs.reduce((sum, seg) => sum + (seg.durationMinutes || 0), 0);
+        const dayShift = departs && arrives ? daysUntil(arrives, departs) : 0;
+        return {
+          booking,
+          status,
+          departs,
+          airlineCode: first?.airlineCode || booking.flightname.split(" ")[0],
+          airlineName: first?.airlineName || first?.airlineCode || "",
+          cabin: titleCase(first?.cabin || booking.flighttype),
+          from: first?.originCode || fromFallback,
+          fromCity: first?.originName,
+          to: last?.destinationCode || toFallback,
+          toCity: last?.destinationName,
+          duration: formatDuration(minutes),
+          stops: segs.length > 1 ? `${segs.length - 1} stop${segs.length > 2 ? "s" : ""}` : "",
+          arrivalNote: dayShift === 1 ? "(Next day)" : dayShift > 1 ? `(+${dayShift} days)` : "",
+        };
+      }),
+    [flightBookings],
+  );
+
+  const carCards = useMemo(
+    () =>
+      carBookings.map((booking) => {
+        const pickUp = parseDate(booking.pickUpDateTime);
+        const [from = "—", to = "—"] = booking.from_to.split("→").map((x) => x.trim());
+        return { booking, pickUp, from, to, status: displayStatus(booking.statusLabel, pickUp) };
+      }),
+    [carBookings],
+  );
+
+  const hotelCards = useMemo(
+    () =>
+      hotelBookings.map((booking) => {
+        const checkIn = parseDate(booking.checkIn);
+        return { booking, checkIn, status: displayStatus(booking.statusLabel, checkIn) };
+      }),
+    [hotelBookings],
+  );
+
+  const keep = (status: string, fields: (string | null | undefined)[]) =>
+    (statusFilter === "all" || status.toLowerCase() === statusFilter) && matchesQuery(query, fields);
+
+  const visibleFlights = flightCards.filter((c) =>
+    keep(c.status, [
+      c.booking.flightname,
+      c.airlineName,
+      c.from,
+      c.fromCity,
+      c.to,
+      c.toCity,
+      c.booking.bookingReference,
+      flightPnr(c.booking),
+    ]),
+  );
+  const visibleCars = carCards.filter((c) =>
+    keep(c.status, [
+      c.booking.carname,
+      c.booking.vendorName,
+      c.booking.from_to,
+      c.booking.bookingReference,
+      c.booking.vendorConfirmationId,
+    ]),
+  );
+  const visibleHotels = hotelCards.filter((c) =>
+    keep(c.status, [
+      c.booking.hotelName,
+      c.booking.locationLabel,
+      c.booking.hotelAddress,
+      c.booking.bookingReference,
+      c.booking.confirmationId,
+    ]),
+  );
+
+  const tabs = [
+    { key: "flight", label: "Flights", icon: "isax-airplane5", count: flightBookings.length },
+    { key: "car", label: "Cars", icon: "isax-car5", count: carBookings.length },
+    { key: "hotel", label: "Hotels", icon: "isax-building5", count: hotelBookings.length },
+  ] as const;
 
   const tabMeta = {
     flight: {
-      title: "Flight Bookings",
       count: flightBookings.length,
+      shown: visibleFlights.length,
       searchPath: routes.flightList,
-      searchLabel: "Search Flights",
+      placeholder: "Search by airline, destination, PNR, or booking ID...",
       emptyText: "You have not booked any flights so far.",
       emptyCta: "Search flights",
     },
     car: {
-      title: "Car Bookings",
       count: carBookings.length,
+      shown: visibleCars.length,
       searchPath: routes.carList,
-      searchLabel: "Search Cars",
+      placeholder: "Search by car, vendor, location, or booking ID...",
       emptyText: "You have not booked any cars so far.",
       emptyCta: "Search cars",
     },
     hotel: {
-      title: "Hotel Bookings",
       count: hotelBookings.length,
+      shown: visibleHotels.length,
       searchPath: routes.hotelGrid,
-      searchLabel: "Search Hotels",
+      placeholder: "Search by hotel, city, or booking ID...",
       emptyText: "You have not booked any hotels so far.",
       emptyCta: "Search hotels",
     },
   } as const;
 
   const activeMeta = tabMeta[activeTab];
-  const activeCount = activeMeta.count;
+  const totalBookings = flightBookings.length + carBookings.length + hotelBookings.length;
+
+  const showFlightDetails = (c: (typeof flightCards)[number]) =>
+    setDetails({
+      title: `${c.booking.flightname} · ${c.from} → ${c.to}`,
+      rows: [
+        { label: "Booking reference", value: c.booking.bookingReference },
+        { label: "PNR", value: flightPnr(c.booking) || "—" },
+        { label: "Status", value: c.status },
+        { label: "Travel date", value: formatDay(c.departs, c.booking.travelDate || "—") },
+        {
+          label: "Flights",
+          value:
+            (c.booking.segments || [])
+              .map(
+                (seg) =>
+                  `${seg.airlineCode || ""} ${seg.flightNumber || ""} ${seg.originCode || ""}→${seg.destinationCode || ""}`.trim(),
+              )
+              .join(", ") || c.booking.from_to,
+        },
+        { label: "Travelers", value: `${c.booking.ticketname} · ${c.booking.members}` },
+        {
+          label: "Ticket numbers",
+          value: flightTicketNumbers(c.booking).join(", ") || "—",
+        },
+        { label: "Booked on", value: c.booking.date },
+        { label: "Price", value: c.booking.price },
+      ],
+    });
+
+  const flightMenu = (c: (typeof flightCards)[number]): MenuAction[] => {
+    const { booking } = c;
+    const busy = supportRef === booking.bookingReference;
+    const actions: MenuAction[] = [
+      { label: "View details", icon: "isax-eye", onSelect: () => showFlightDetails(c) },
+    ];
+    if (flightNeedsHostnsellSync(booking))
+      actions.push({
+        label: syncingRef === booking.bookingReference ? "Refreshing..." : "Refresh ticket status",
+        icon: "isax-refresh",
+        disabled: syncingRef === booking.bookingReference,
+        onSelect: () => refreshHostnsellTicketStatus(booking),
+      });
+    if (isHostnsellFlight(booking) && FLIGHT_ETICKET_STATUSES.includes(booking.status))
+      actions.push({
+        label: "HostNSell PDF",
+        icon: "isax-document-download",
+        disabled: downloadingRef === booking.bookingReference,
+        onSelect: () => handleDownloadHostnsellPdf(booking),
+      });
+    if (isHostnsellFlight(booking) && ["ticketed", "partially_ticketed"].includes(booking.status))
+      actions.push({
+        label: busy ? "Sending..." : "Refund quote",
+        icon: "isax-receipt-text5",
+        disabled: busy,
+        onSelect: () => requestHostnsellRefundQuote(booking),
+      });
+    if (isHostnsellFlight(booking))
+      actions.push({
+        label: busy ? "Sending..." : "Request support",
+        icon: "isax-message-question",
+        disabled: busy,
+        onSelect: () => submitHostnsellSupport(booking),
+      });
+    return actions;
+  };
+
+  const renderFlight = (c: (typeof flightCards)[number]) => {
+    const { booking, status } = c;
+    const canCancel = FLIGHT_CANCELLABLE_STATUSES.includes(booking.status) && status === "Upcoming";
+    return (
+      <BookingCard
+        key={booking.id}
+        logo={
+          <CardLogo
+            src={c.airlineCode ? `https://images.kiwi.com/airlines/64/${c.airlineCode}.png` : undefined}
+            icon="isax-airplane5"
+            tone="flight"
+          />
+        }
+        title={booking.flightname}
+        subtitle={[c.airlineName, c.cabin]}
+        status={status}
+        note={statusNote(status, c.departs, "Departs")}
+        image="/assets/img/flight/flight-04.jpg"
+        route={
+          <RouteLine
+            from={c.from}
+            fromSub={c.fromCity}
+            to={c.to}
+            toSub={c.toCity}
+            duration={c.duration}
+            note={c.stops}
+          />
+        }
+        info={[
+          { icon: "isax-calendar-2", label: "Date", value: formatDay(c.departs, booking.travelDate || "—") },
+          { icon: "isax-location", label: "Departure", value: booking.departureTime || "—" },
+          { icon: "isax-location", label: "Arrival", value: booking.arrivalTime || "—", sub: c.arrivalNote },
+          { icon: "isax-receipt-item", label: "PNR", value: flightPnr(booking) || "—" },
+        ]}
+        people={{ label: "Travelers", value: `${booking.ticketname} · ${booking.members}` }}
+        price={booking.price}
+        primary={{
+          label: "Download E-Ticket",
+          busy: downloadingRef === booking.bookingReference,
+          disabled: !FLIGHT_ETICKET_STATUSES.includes(booking.status),
+          onClick: () => handleDownloadETicket(booking),
+        }}
+        secondary={
+          canCancel
+            ? { kind: "cancel", onClick: () => openFlightCancelDialog(booking) }
+            : status === "Cancelled"
+              ? undefined
+              : { kind: "details", onClick: () => showFlightDetails(c) }
+        }
+        menu={flightMenu(c)}
+      />
+    );
+  };
+
+  const renderCar = (c: (typeof carCards)[number]) => {
+    const { booking, status } = c;
+    const canCancel = CAR_CANCELLABLE_STATUSES.includes(booking.status) && status === "Upcoming";
+    const show = () =>
+      setDetails({
+        title: `${booking.carname} · ${booking.from_to}`,
+        rows: [
+          { label: "Booking reference", value: booking.bookingReference },
+          { label: "Confirmation", value: booking.vendorConfirmationId || booking.sabreOrderId || "—" },
+          { label: "Status", value: status },
+          { label: "Vendor", value: booking.vendorName || "—" },
+          { label: "Pick-up", value: booking.pickUpDateTime },
+          { label: "Return", value: booking.returnDateTime },
+          { label: "Driver", value: booking.driverName },
+          { label: "Booked on", value: booking.date },
+          { label: "Price", value: booking.price },
+        ],
+      });
+    return (
+      <BookingCard
+        key={booking.id}
+        logo={<CardLogo icon="isax-car5" tone="car" />}
+        title={booking.carname}
+        subtitle={[booking.vendorName || "", booking.cartype]}
+        status={status}
+        note={statusNote(status, c.pickUp, "Pick-up")}
+        image="/assets/img/cars/car-06.jpg"
+        route={<RouteLine from={c.from} fromSub="Pick-up" to={c.to} toSub="Return" icon="isax-car5" />}
+        info={[
+          { icon: "isax-calendar-2", label: "Pick-up", value: booking.pickUpDateTime || "—" },
+          { icon: "isax-calendar-2", label: "Return", value: booking.returnDateTime || "—" },
+          { icon: "isax-clock", label: "Days", value: booking.rentalDays ?? "—" },
+          {
+            icon: "isax-receipt-item",
+            label: "Confirmation",
+            value: booking.vendorConfirmationId || booking.sabreOrderId || "—",
+          },
+        ]}
+        people={{ label: "Driver", value: booking.driverName }}
+        price={booking.price}
+        primary={{
+          label: "Download Voucher",
+          busy: downloadingRef === booking.bookingReference,
+          disabled: !VOUCHER_DOWNLOADABLE_STATUSES.includes(booking.status),
+          onClick: () => handleDownloadCarVoucher(booking),
+        }}
+        secondary={
+          canCancel
+            ? { kind: "cancel", onClick: () => openCarCancelDialog(booking) }
+            : status === "Cancelled"
+              ? undefined
+              : { kind: "details", onClick: show }
+        }
+        menu={[{ label: "View details", icon: "isax-eye", onSelect: show }]}
+      />
+    );
+  };
+
+  const renderHotel = (c: (typeof hotelCards)[number]) => {
+    const { booking, status } = c;
+    const canCancel = HOTEL_CANCELLABLE_STATUSES.includes(booking.status) && status === "Upcoming";
+    const show = () =>
+      setDetails({
+        title: booking.hotelName,
+        rows: [
+          { label: "Booking reference", value: booking.bookingReference },
+          { label: "Confirmation", value: hotelConfirmation(booking) },
+          { label: "Status", value: status },
+          { label: "Room", value: booking.roomName },
+          { label: "Address", value: booking.hotelAddress || booking.locationLabel },
+          { label: "Check-in", value: booking.checkIn },
+          { label: "Check-out", value: booking.checkOut },
+          { label: "Guest", value: booking.guestName },
+          { label: "Booked on", value: booking.date },
+          { label: "Price", value: booking.price },
+        ],
+      });
+    return (
+      <BookingCard
+        key={booking.id}
+        logo={<CardLogo icon="isax-building5" tone="hotel" />}
+        title={booking.hotelName}
+        subtitle={[booking.hotelCity || "", booking.roomName]}
+        status={status}
+        note={statusNote(status, c.checkIn, "Check-in")}
+        image="/assets/img/hotels/hotel-01.jpg"
+        route={
+          <div className="ybk-place">
+            <i className="isax isax-location" aria-hidden />
+            <span>{booking.locationLabel}</span>
+          </div>
+        }
+        info={[
+          { icon: "isax-calendar-2", label: "Check-in", value: booking.checkIn || "—" },
+          { icon: "isax-calendar-2", label: "Check-out", value: booking.checkOut || "—" },
+          { icon: "isax-clock", label: "Nights", value: booking.nights ?? "—" },
+          { icon: "isax-receipt-item", label: "Confirmation", value: hotelConfirmation(booking) },
+        ]}
+        people={{
+          label: "Guests",
+          value: booking.guestCount ? `${booking.guestName} · ${booking.guestCount} Guest(s)` : booking.guestName,
+        }}
+        price={booking.price}
+        primary={{
+          label: "Download Voucher",
+          busy: downloadingRef === booking.bookingReference,
+          disabled: !VOUCHER_DOWNLOADABLE_STATUSES.includes(booking.status),
+          onClick: () => handleDownloadHotelVoucher(booking),
+        }}
+        secondary={
+          canCancel
+            ? { kind: "cancel", onClick: () => openHotelCancelDialog(booking) }
+            : status === "Cancelled"
+              ? undefined
+              : { kind: "details", onClick: show }
+        }
+        menu={[{ label: "View details", icon: "isax-eye", onSelect: show }]}
+      />
+    );
+  };
+
+  const cards =
+    activeTab === "flight"
+      ? visibleFlights.map(renderFlight)
+      : activeTab === "car"
+        ? visibleCars.map(renderCar)
+        : visibleHotels.map(renderHotel);
+
+  const message = (title: string, text: string, action: ReactNode) => (
+    <div className="ybk-empty">
+      <h3>{title}</h3>
+      <p>{text}</p>
+      {action}
+    </div>
+  );
 
   return (
-    <div>
-      <Breadcrumb
-        title="Your Bookings"
-        breadcrumbs={breadcrumbs}
-        backgroundClass="breadcrumb-bg-04"
-      />
+    <div className="ybk">
+      <section className="ybk-hero">
+        <div className="ybk-hero__art" aria-hidden>
+          <img src="/assets/img/yt/bookings/bookings-hero.webp" alt="" width={1240} height={340} />
+          <span className="ybk-hero__bubble">
+            Your journeys
+            <br />
+            all in one place!
+          </span>
+        </div>
+        <div className="ybk-wrap ybk-hero__copy">
+          <span className="ybk-hero__eyebrow">Manage your trip</span>
+          <h1>Your Bookings</h1>
+          <p>
+            {loading
+              ? "Loading your bookings..."
+              : `${totalBookings} booking(s) — confirmation numbers, dates, and documents ready for check-in.`}
+          </p>
+        </div>
+      </section>
 
-      <div className="content">
-        <div className="container">
-          <div className="card">
-            <div className="card-body header-content d-flex align-items-center justify-content-between flex-wrap gap-2">
-              <div>
-                <h6 className="mb-1">{activeMeta.title}</h6>
-                <p className="fs-14 text-gray-6 fw-normal mb-0">
-                  {loading
-                    ? "Loading..."
-                    : `${activeCount} booking(s) — confirmation numbers, dates, and documents ready for check-in`}
-                </p>
-              </div>
-              <div className="d-flex flex-wrap gap-2">
-                <div className="btn-group" role="group" aria-label="Booking type">
-                  <button
-                    type="button"
-                    className={`btn btn-sm ${
-                      activeTab === "flight" ? "btn-primary" : "btn-outline-primary"
-                    }`}
-                    onClick={() => setActiveTab("flight")}
-                  >
-                    Flights ({flightBookings.length})
-                  </button>
-                  <button
-                    type="button"
-                    className={`btn btn-sm ${
-                      activeTab === "car" ? "btn-primary" : "btn-outline-primary"
-                    }`}
-                    onClick={() => setActiveTab("car")}
-                  >
-                    Cars ({carBookings.length})
-                  </button>
-                  <button
-                    type="button"
-                    className={`btn btn-sm ${
-                      activeTab === "hotel" ? "btn-primary" : "btn-outline-primary"
-                    }`}
-                    onClick={() => setActiveTab("hotel")}
-                  >
-                    Hotels ({hotelBookings.length})
-                  </button>
-                </div>
-                <Link to={activeMeta.searchPath} className="btn btn-primary">
-                  <i className="isax isax-search-normal-1 me-2" />
-                  {activeMeta.searchLabel}
-                </Link>
-              </div>
+      <div className="ybk-panel">
+        <div className="ybk-wrap">
+          <div className="ybk-toolbar">
+            <div className="ybk-tabs" role="tablist" aria-label="Booking type">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab.key}
+                  className={`ybk-tab${activeTab === tab.key ? " is-active" : ""}`}
+                  onClick={() => setActiveTab(tab.key)}
+                >
+                  <i className={`isax ${tab.icon}`} aria-hidden />
+                  {tab.label} ({tab.count})
+                </button>
+              ))}
             </div>
+            <label className="ybk-search">
+              <i className="isax isax-search-normal-1" aria-hidden />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={activeMeta.placeholder}
+                aria-label="Search bookings"
+              />
+            </label>
+            <label className="ybk-filter">
+              <i className="isax isax-filter" aria-hidden />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                aria-label="Filter by status"
+              >
+                {STATUS_FILTERS.map((f) => (
+                  <option key={f.value} value={f.value}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+              <i className="isax isax-arrow-down-1 ybk-filter__caret" aria-hidden />
+            </label>
           </div>
 
-          {loading ? (
-            <div className="card">
-              <div className="card-body">
-                <p className="p-4 text-center text-gray-6 mb-0">
-                  Loading your bookings...
-                </p>
-              </div>
-            </div>
-          ) : error ? (
-            <div className="card">
-              <div className="card-body">
-                <div className="text-center p-4">
-                  <p className="text-danger mb-3">{error}</p>
-                  {error.includes("log in") ? (
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={() => {
-                        sessionStorage.setItem(
-                          "returnUrl",
-                          window.location.pathname,
-                        );
-                        openLogin();
-                      }}
-                    >
-                      Login
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary"
-                      onClick={fetchBookings}
-                    >
-                      Retry
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : activeCount === 0 ? (
-            <div className="card">
-              <div className="card-body">
-                <div className="text-center p-5">
-                  <h6 className="mb-2">No bookings yet</h6>
-                  <p className="text-gray-6 mb-3">{activeMeta.emptyText}</p>
-                  <Link to={activeMeta.searchPath} className="btn btn-primary">
-                    {activeMeta.emptyCta}
+          <div className="ybk-grid">
+            {loading ? (
+              message("Loading your bookings...", "Fetching your flights, cars and hotels.", null)
+            ) : error ? (
+              message(
+                error.includes("log in") ? "Log in to see your trips" : "Something went wrong",
+                error,
+                error.includes("log in") ? (
+                  <button
+                    type="button"
+                    className="ybk-btn ybk-btn--primary"
+                    onClick={() => {
+                      sessionStorage.setItem("returnUrl", window.location.pathname);
+                      openLogin();
+                    }}
+                  >
+                    Login
+                  </button>
+                ) : (
+                  <button type="button" className="ybk-btn ybk-btn--ghost" onClick={fetchBookings}>
+                    Retry
+                  </button>
+                ),
+              )
+            ) : activeMeta.count === 0 ? (
+              message(
+                "No bookings yet",
+                activeMeta.emptyText,
+                <Link to={activeMeta.searchPath} className="ybk-btn ybk-btn--primary">
+                  {activeMeta.emptyCta}
+                </Link>,
+              )
+            ) : activeMeta.shown === 0 ? (
+              message(
+                "No matching bookings",
+                "Try a different search or status filter.",
+                <button
+                  type="button"
+                  className="ybk-btn ybk-btn--ghost"
+                  onClick={() => {
+                    setQuery("");
+                    setStatusFilter("all");
+                  }}
+                >
+                  Clear filters
+                </button>,
+              )
+            ) : (
+              cards
+            )}
+
+            <aside className="ybk-aside">
+              <div className="ybk-help">
+                <img src="/assets/img/yt/bookings/bookings-help.webp" alt="" width={412} height={284} loading="lazy" />
+                <div>
+                  <h3>Need help with your booking?</h3>
+                  <p>Manage, cancel or download your tickets easily.</p>
+                  <Link to={routes.contactUs} className="ybk-btn ybk-btn--ghost">
+                    <i className="isax isax-headphone" />
+                    Contact Support
                   </Link>
                 </div>
               </div>
-            </div>
-          ) : activeTab === "flight" ? (
-            <div className="row">
-              {flightBookings.map((booking) => (
-                <div className="col-lg-6" key={booking.id}>
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-                        <div>
-                          <h6 className="mb-1">{booking.flightname}</h6>
-                          <span className="fs-13 text-gray-6">
-                            {booking.flighttype}
-                          </span>
-                        </div>
-                        <span
-                          className={`badge rounded-pill fs-10 ${statusBadgeClass(
-                            booking.statusLabel,
-                          )}`}
-                        >
-                          {booking.statusLabel}
-                        </span>
-                      </div>
-
-                      <div className="d-flex align-items-center mb-3">
-                        <i className="isax isax-airplane me-2 text-primary" />
-                        <span className="fw-medium text-dark">
-                          {booking.from_to}
-                        </span>
-                      </div>
-
-                      <div className="row gy-2 mb-3">
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Reference
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.bookingReference}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">PNR</span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {flightPnr(booking) || "—"}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Travel date
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.travelDate || "—"}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Departure
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.departureTime || "—"}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Arrival
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.arrivalTime || "—"}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Travelers
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.ticketname}
-                            {booking.members ? ` · ${booking.members}` : ""}
-                          </span>
-                        </div>
-                        <div className="col-12">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Ticket numbers
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {flightTicketNumbers(booking).length
-                              ? flightTicketNumbers(booking).join(", ")
-                              : "—"}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Booked On
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.date}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">Price</span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.price}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="d-flex flex-wrap gap-2">
-                        {flightNeedsHostnsellSync(booking) && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-primary flex-fill"
-                            onClick={() => refreshHostnsellTicketStatus(booking)}
-                            disabled={syncingRef === booking.bookingReference}
-                          >
-                            <i className="isax isax-refresh me-2" />
-                            {syncingRef === booking.bookingReference
-                              ? "Refreshing..."
-                              : "Refresh ticket status"}
-                          </button>
-                        )}
-                        {FLIGHT_ETICKET_STATUSES.includes(booking.status) && (
-                          <button
-                            type="button"
-                            className="btn btn-primary flex-fill"
-                            onClick={() => handleDownloadETicket(booking)}
-                            disabled={
-                              downloadingRef === booking.bookingReference
-                            }
-                          >
-                            <i className="isax isax-document-download me-2" />
-                            {downloadingRef === booking.bookingReference
-                              ? "Preparing..."
-                              : "Download E-Ticket"}
-                          </button>
-                        )}
-                        {isHostnsellFlight(booking) &&
-                          FLIGHT_ETICKET_STATUSES.includes(booking.status) && (
-                            <button
-                              type="button"
-                              className="btn btn-outline-primary flex-fill"
-                              onClick={() => handleDownloadHostnsellPdf(booking)}
-                              disabled={
-                                downloadingRef === booking.bookingReference
-                              }
-                            >
-                              <i className="isax isax-document-download me-2" />
-                              HostNSell PDF
-                            </button>
-                          )}
-                        {FLIGHT_CANCELLABLE_STATUSES.includes(booking.status) && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-danger flex-fill"
-                            onClick={() => openFlightCancelDialog(booking)}
-                          >
-                            Cancel booking
-                          </button>
-                        )}
-                        {isHostnsellFlight(booking) &&
-                          ["ticketed", "partially_ticketed"].includes(
-                            booking.status,
-                          ) && (
-                            <button
-                              type="button"
-                              className="btn btn-outline-secondary flex-fill"
-                              onClick={() => requestHostnsellRefundQuote(booking)}
-                              disabled={supportRef === booking.bookingReference}
-                            >
-                              {supportRef === booking.bookingReference
-                                ? "Sending..."
-                                : "Refund quote"}
-                            </button>
-                          )}
-                        {isHostnsellFlight(booking) && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-secondary flex-fill"
-                            onClick={() => submitHostnsellSupport(booking)}
-                            disabled={supportRef === booking.bookingReference}
-                          >
-                            {supportRef === booking.bookingReference
-                              ? "Sending..."
-                              : "Request support"}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : activeTab === "car" ? (
-            <div className="row">
-              {carBookings.map((booking) => (
-                <div className="col-lg-6" key={booking.id}>
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-                        <div>
-                          <h6 className="mb-1">{booking.carname}</h6>
-                          <span className="fs-13 text-gray-6">
-                            {booking.vendorName || booking.cartype}
-                          </span>
-                        </div>
-                        <span
-                          className={`badge rounded-pill fs-10 ${statusBadgeClass(
-                            booking.statusLabel,
-                          )}`}
-                        >
-                          {booking.statusLabel}
-                        </span>
-                      </div>
-
-                      <div className="d-flex align-items-center mb-3">
-                        <i className="isax isax-car5 me-2 text-primary" />
-                        <span className="fw-medium text-dark">
-                          {booking.from_to}
-                        </span>
-                      </div>
-
-                      <div className="row gy-2 mb-3">
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Reference
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.bookingReference}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Confirmation
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.vendorConfirmationId ||
-                              booking.sabreOrderId ||
-                              "—"}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Driver
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.driverName}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Pickup
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.pickUpDateTime}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Return
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.returnDateTime}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Booked On
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.date}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">Price</span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.price}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="d-flex flex-wrap gap-2">
-                        {VOUCHER_DOWNLOADABLE_STATUSES.includes(
-                          booking.status,
-                        ) && (
-                          <button
-                            type="button"
-                            className="btn btn-primary flex-fill"
-                            onClick={() => handleDownloadCarVoucher(booking)}
-                            disabled={
-                              downloadingRef === booking.bookingReference
-                            }
-                          >
-                            <i className="isax isax-document-download me-2" />
-                            {downloadingRef === booking.bookingReference
-                              ? "Preparing..."
-                              : "Download Voucher"}
-                          </button>
-                        )}
-                        {CAR_CANCELLABLE_STATUSES.includes(booking.status) && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-danger flex-fill"
-                            onClick={() => openCarCancelDialog(booking)}
-                          >
-                            Cancel booking
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="row">
-              {hotelBookings.map((booking) => (
-                <div className="col-lg-6" key={booking.id}>
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-                        <div>
-                          <h6 className="mb-1">{booking.hotelName}</h6>
-                          <span className="fs-13 text-gray-6">
-                            {booking.roomName}
-                          </span>
-                        </div>
-                        <span
-                          className={`badge rounded-pill fs-10 ${statusBadgeClass(
-                            booking.statusLabel,
-                          )}`}
-                        >
-                          {booking.statusLabel}
-                        </span>
-                      </div>
-
-                      <div className="d-flex align-items-start mb-3">
-                        <i className="isax isax-building-4 me-2 text-primary mt-1" />
-                        <span className="fw-medium text-dark">
-                          {booking.locationLabel}
-                          {booking.hotelAddress
-                            ? ` · ${booking.hotelAddress}`
-                            : ""}
-                        </span>
-                      </div>
-
-                      <div className="row gy-2 mb-3">
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Reference
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.bookingReference}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Confirmation
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {hotelConfirmation(booking)}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Guest
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.guestName}
-                            {booking.guestCount
-                              ? ` · ${booking.guestCount} guest(s)`
-                              : ""}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Check-in
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.checkIn}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Check-out
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.checkOut}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Nights
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.nights ?? "—"}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">
-                            Booked On
-                          </span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.date}
-                          </span>
-                        </div>
-                        <div className="col-6">
-                          <span className="fs-12 text-gray-6 d-block">Price</span>
-                          <span className="fs-14 fw-medium text-dark">
-                            {booking.price}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="d-flex flex-wrap gap-2">
-                        {VOUCHER_DOWNLOADABLE_STATUSES.includes(
-                          booking.status,
-                        ) && (
-                          <button
-                            type="button"
-                            className="btn btn-primary flex-fill"
-                            onClick={() => handleDownloadHotelVoucher(booking)}
-                            disabled={
-                              downloadingRef === booking.bookingReference
-                            }
-                          >
-                            <i className="isax isax-document-download me-2" />
-                            {downloadingRef === booking.bookingReference
-                              ? "Preparing..."
-                              : "Download Voucher"}
-                          </button>
-                        )}
-                        {HOTEL_CANCELLABLE_STATUSES.includes(booking.status) && (
-                          <button
-                            type="button"
-                            className="btn btn-outline-danger flex-fill"
-                            onClick={() => openHotelCancelDialog(booking)}
-                          >
-                            Cancel booking
-                          </button>
-                        )}
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+              <ul className="ybk-perks">
+                <li>
+                  <span className="ybk-perks__icon ybk-perks__icon--red"><i className="isax isax-ticket5" /></span>
+                  Easy Cancellations
+                </li>
+                <li>
+                  <span className="ybk-perks__icon ybk-perks__icon--blue"><i className="isax isax-document-text5" /></span>
+                  Instant E-Tickets
+                </li>
+                <li>
+                  <span className="ybk-perks__icon ybk-perks__icon--green"><i className="isax isax-headphone5" /></span>
+                  24/7 Support
+                </li>
+                <li>
+                  <span className="ybk-perks__icon ybk-perks__icon--purple"><i className="isax isax-shield-tick5" /></span>
+                  Secure Bookings
+                </li>
+              </ul>
+            </aside>
+          </div>
         </div>
       </div>
+
+      {details && <DetailsModal title={details.title} rows={details.rows} onClose={() => setDetails(null)} />}
 
       {(selectedFlight || selectedCar || selectedHotel) && (
         <>
@@ -1136,5 +1101,6 @@ const MyBookings = () => {
     </div>
   );
 };
+
 
 export default MyBookings;

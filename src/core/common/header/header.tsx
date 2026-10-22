@@ -113,6 +113,8 @@ const Header: FC = () => {
   const isLightHero = isLightHeroPath(currentPath);
   const onLightHero = isLightHero && !scrolled;
   const darkChrome = scrolled || isLightHero;
+  // Your Bookings opens on a navy hero: white-text logo and a filled bookings pill.
+  const onNavyHero = currentPath === routes.yourBookings && !scrolled;
 
   const licenseNo = process.env.NEXT_PUBLIC_LICENSE_NO ?? "73107635";
   const crNo = process.env.NEXT_PUBLIC_CR_NO ?? "7054310201";
@@ -145,7 +147,7 @@ const Header: FC = () => {
       <div
         className={`main-header ${isSpecialHeader ? "main-header-four" : ""} ${
           onLightHero ? "header-on-light" : ""
-        }`}
+        } ${onNavyHero ? "header-on-navy" : ""}`}
       >
         <header className={`${scrolled ? "fixed" : ""}`}>
           <div className="container">
@@ -281,7 +283,7 @@ const Header: FC = () => {
                 <div className="navbar-logo">
                   <Link to={routes.home1}>
                     <ImageWithBasePath
-                      src="/assets/img/logo-light.svg"
+                      src={onNavyHero ? "/assets/img/logo-on-dark.svg" : "/assets/img/logo-light.svg"}
                       className="logo logo-height"
                       alt="logo"
                     />

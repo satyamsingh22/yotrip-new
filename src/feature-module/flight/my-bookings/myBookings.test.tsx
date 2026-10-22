@@ -14,10 +14,6 @@ vi.mock("@/context/ModalContext", () => ({
   useModal: () => ({ openLogin: vi.fn() }),
 }));
 
-vi.mock("../../../core/common/Breadcrumb/breadcrumb", () => ({
-  default: ({ title }: { title: string }) => <div>{title}</div>,
-}));
-
 import MyBookings from "./myBookings";
 
 const renderAt = (entry: string) =>
@@ -35,37 +31,42 @@ describe("MyBookings tab deep links", () => {
   it("opens the Hotels tab from ?tab=hotel", () => {
     renderAt("/your-bookings?tab=hotel");
 
-    expect(screen.getByRole("button", { name: /Hotels/ })).toHaveClass(
-      "btn-primary",
+    expect(screen.getByRole("tab", { name: /Hotels/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
     );
-    expect(screen.getByRole("button", { name: /Flights/ })).toHaveClass(
-      "btn-outline-primary",
+    expect(screen.getByRole("tab", { name: /Flights/ })).toHaveAttribute(
+      "aria-selected",
+      "false",
     );
   });
 
   it("opens the Cars tab from ?tab=car", () => {
     renderAt("/your-bookings?tab=car");
 
-    expect(screen.getByRole("button", { name: /Cars/ })).toHaveClass(
-      "btn-primary",
+    expect(screen.getByRole("tab", { name: /Cars/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
     );
   });
 
   it("defaults to Flights when no tab is specified", () => {
     renderAt("/your-bookings");
 
-    expect(screen.getByRole("button", { name: /Flights/ })).toHaveClass(
-      "btn-primary",
+    expect(screen.getByRole("tab", { name: /Flights/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
     );
   });
 
   it("writes the tab into the URL when the user switches products", async () => {
     renderAt("/your-bookings");
 
-    await userEvent.click(screen.getByRole("button", { name: /Hotels/ }));
+    await userEvent.click(screen.getByRole("tab", { name: /Hotels/ }));
 
-    expect(screen.getByRole("button", { name: /Hotels/ })).toHaveClass(
-      "btn-primary",
+    expect(screen.getByRole("tab", { name: /Hotels/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
     );
   });
 });
