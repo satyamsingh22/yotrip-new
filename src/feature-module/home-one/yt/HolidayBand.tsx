@@ -9,6 +9,8 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { all_routes } from "../../router/all_routes";
+import { useHomeHeroSearch } from "@/context/HomeHeroSearchContext";
+import { homeFlightSearchPath } from "@/utils/homeSearchDeepLink";
 import type { HolidayState } from "@/hooks/useUpcomingHolidays";
 import {
   formatHolidaySpan,
@@ -81,6 +83,7 @@ const fmt = (iso: string, lng: string) => {
 
 const HolidayBand = ({ state }: { state: HolidayState }) => {
   const { t, i18n } = useTranslation();
+  const { goFromClick } = useHomeHeroSearch();
   const lng = (i18n.resolvedLanguage || i18n.language || "en").split("-")[0];
 
   const countryLabel = state.country
@@ -116,7 +119,11 @@ const HolidayBand = ({ state }: { state: HolidayState }) => {
                 </li>
               ))}
             </ul>
-            <Link to={all_routes.flightList} className="plan-band__cta">
+            <Link
+              to={homeFlightSearchPath()}
+              className="plan-band__cta"
+              onClick={(e) => goFromClick(e, "flights", "flight-from")}
+            >
               {t("holidayBand.cta")}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M5 12h14m-6-6 6 6-6 6" />

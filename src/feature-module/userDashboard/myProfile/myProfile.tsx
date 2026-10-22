@@ -1,16 +1,62 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
 import Sidebar from "../../../core/common/sidebar/sidebar";
 import { all_routes } from "../../router/all_routes";
 import { Link } from "react-router-dom";
-import UserAvatar from "../../../core/common/userAvatar/UserAvatar";
 import SavedTravelers from "./savedTravelers";
+import "./my-profile.scss";
+
+type Profile = {
+  name?: { firstName?: string; lastName?: string; fullName?: string };
+  email?: string;
+  phone?: string;
+  profileImage?: string;
+  address?: {
+    address?: string;
+    country?: string;
+    state?: string;
+    city?: string;
+    postalCode?: string;
+  };
+};
+
+/** Read-only value in a grey pill with a leading icon (mock field style). */
+const Field = ({ icon, value, label }: { icon: string; value?: string; label: string }) => (
+  <div className="ypf-field" title={label}>
+    <i className={`isax ${icon}`} aria-hidden />
+    <span aria-label={label}>{value?.trim() || "N/A"}</span>
+  </div>
+);
+
+const SectionHead = ({
+  icon,
+  title,
+  sub,
+  action,
+}: {
+  icon: string;
+  title: string;
+  sub: string;
+  action?: React.ReactNode;
+}) => (
+  <header className="ypf-card__head">
+    <span className="ypf-card__icon" aria-hidden>
+      <i className={`isax ${icon}`} />
+    </span>
+    <div className="ypf-card__title">
+      <h2>{title}</h2>
+      <p>{sub}</p>
+    </div>
+    {action}
+  </header>
+);
 
 const MyProfile = () => {
   const routes = all_routes;
-  const [profile, setProfile] = useState<any>(null);
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [failed, setFailed] = useState(false);
+  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -37,141 +83,105 @@ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
         setProfile(res.data);
       } catch (err) {
         console.error("Profile fetch failed:", err);
+        setFailed(true);
       }
     };
 
     fetchProfile();
   }, []);
 
-  if (!profile) {
-    return (
-      <div>
-        <Breadcrumb
-          title="My Profile"
-          breadcrumbs={[]}
-          backgroundClass="breadcrumb-bg-01"
-        />
-        <div
-          className="content d-flex align-items-center justify-content-center"
-          style={{ minHeight: "60vh" }}
-        >
-          <p className="text-muted mb-0">Loading profile…</p>
-        </div>
-      </div>
-    );
-  }
+  const address = profile?.address || {};
+  const editLink = (label: string, hash = "") => (
+    <Link to={`${routes.profileSettings}${hash}`} className="ypf-btn ypf-btn--outline">
+      <i className="isax isax-edit-2" aria-hidden />
+      {label}
+    </Link>
+  );
 
   return (
-    <div>
-      <Breadcrumb
-        title="My Profile"
-        breadcrumbs={[]}
-        backgroundClass="breadcrumb-bg-01"
-      />
+    <div className="ypf">
+      <section className="ypf-hero">
+        <div className="ypf-hero__copy">
+          <h1>My Profile</h1>
+          <nav aria-label="breadcrumb">
+            <ol>
+              <li>
+                <Link to={routes.home1}>
+                  <i className="isax isax-home-2" aria-hidden />
+                  Home
+                </Link>
+              </li>
+              <li aria-current="page">My Profile</li>
+            </ol>
+          </nav>
+        </div>
+      </section>
 
-      <div className="content">
-        <div className="container">
-          <div className="row">
+      <div className="ypf-body">
+        <div className="ypf-layout">
+          <Sidebar />
 
-            <div className="col-xl-3 col-lg-4">
-              <Sidebar />
-            </div>
-
-            <div className="col-xl-9 col-lg-8">
-              <div className="card shadow-none mb-0">
-
-                <div className="card-header d-flex justify-content-between">
-                  <h6>My Profile</h6>
-                  <Link to={routes.profileSettings} className="btn btn-light p-1">
-                    <i className="isax isax-edit-2"></i>
-                  </Link>
-                </div>
-
-                <div className="card-body">
-
-                  <h6 className="fs-16 mb-3">Basic Information</h6>
-
-                  <div className="d-flex align-items-center mb-3">
-                    <UserAvatar
-                        src={
-                          profile?.profileImage
-                            ? `${BASE_URL}${profile.profileImage}`
-                            : null
-                        }
-                        name={profile?.name?.fullName}
-                        className="avatar avatar-xl rounded-circle"
-                        alt="Profile"
-                      />
-
-                    
+          <div className="ypf-main">
+            {!profile ? (
+              <section className="ypf-card ypf-card--status">
+                <p>{failed ? "Could not load your profile. Please refresh or log in again." : "Loading profile…"}</p>
+              </section>
+            ) : (
+              <>
+                <section className="ypf-card" aria-label="Personal Information">
+                  <SectionHead
+                    icon="isax-user-edit"
+                    title="Personal Information"
+                    sub="Manage your personal details. This information will be used for your bookings."
+                    action={editLink("Edit Profile")}
+                  />
+                  <div className="ypf-grid">
+                    <div>
+                      <span className="ypf-label">First Name</span>
+                      <Field icon="isax-user" label="First name" value={profile.name?.firstName} />
+                    </div>
+                    <div>
+                      <span className="ypf-label">Last Name</span>
+                      <Field icon="isax-user" label="Last name" value={profile.name?.lastName} />
+                    </div>
+                    <div>
+                      <span className="ypf-label">Email</span>
+                      <Field icon="isax-sms" label="Email" value={profile.email} />
+                    </div>
+                    <div>
+                      <span className="ypf-label">Phone</span>
+                      <Field icon="isax-call" label="Phone" value={profile.phone} />
+                    </div>
                   </div>
+                </section>
 
-                  <div className="row border-bottom pb-2 mb-3">
+                <section className="ypf-card" aria-label="Address Information">
+                  <SectionHead
+                    icon="isax-location-tick"
+                    title="Address Information"
+                    sub="Your address details will be used for booking confirmations and communication."
+                    action={editLink("Edit Address")}
+                  />
+                  <div className="ypf-addr">
+                    <span className="ypf-addr__label">Address</span>
+                    <Field icon="isax-home-2" label="Address" value={address.address} />
+                    <Field icon="isax-map" label="State" value={address.state} />
 
-                    <div className="col-md-6 mb-2">
-                      <h6>First Name</h6>
-                      <p>{profile?.name?.firstName || "N/A"}</p>
-                    </div>
+                    <span className="ypf-addr__label">Country</span>
+                    <Field icon="isax-global" label="Country" value={address.country} />
+                    <Field icon="isax-location" label="Postal code" value={address.postalCode} />
 
-                    <div className="col-md-6 mb-2">
-                      <h6>Last Name</h6>
-                      <p>{profile?.name?.lastName || "N/A"}</p>
-                    </div>
-
-                    <div className="col-md-6 mb-2">
-                      <h6>Email</h6>
-                      <p>{profile?.email || "N/A"}</p>
-                    </div>
-
-                    <div className="col-md-6 mb-2">
-                      <h6>Phone</h6>
-                      <p>{profile?.phone || "N/A"}</p>
-                    </div>
-
+                    <span className="ypf-addr__label">City</span>
+                    <Field icon="isax-buildings" label="City" value={address.city} />
                   </div>
+                </section>
 
-                  <h6 className="fs-16 mb-3">Address Information</h6>
-
-                  <div className="row g-2">
-
-                    <div className="col-md-12">
-                      <h6>Address</h6>
-                      <p>{profile?.address?.address || "N/A"}</p>
-                    </div>
-
-                    <div className="col-md-6">
-                      <h6>Country</h6>
-                      <p>{profile?.address?.country || "N/A"}</p>
-                    </div>
-
-                    <div className="col-md-6">
-                      <h6>State</h6>
-                      <p>{profile?.address?.state || "N/A"}</p>
-                    </div>
-
-                    <div className="col-md-6">
-                      <h6>City</h6>
-                      <p>{profile?.address?.city || "N/A"}</p>
-                    </div>
-
-                    <div className="col-md-6">
-                      <h6>Postal Code</h6>
-                      <p>{profile?.address?.postalCode || "N/A"}</p>
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              <SavedTravelers />
-            </div>
-
+                <SavedTravelers />
+              </>
+            )}
           </div>
         </div>
       </div>
-
     </div>
   );
 };

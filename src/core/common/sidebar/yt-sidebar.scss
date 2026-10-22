@@ -1,0 +1,138 @@
+/* Account sidebar (mock: centered avatar card, then a plain menu whose current
+   item gets a pale-blue fill and a blue bar on the left). */
+.ysb {
+  --ysb-ink: #13254f;
+  --ysb-soft: #5b6b85;
+  --ysb-blue: #1a5cf5;
+
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 6px 22px rgba(17, 40, 90, 0.07);
+  font-family: "Plus Jakarta Sans", "IBM Plex Sans", sans-serif;
+}
+
+.ysb__profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 20px 22px;
+  border-bottom: 1px solid #e7edf5;
+  text-align: center;
+}
+
+.ysb__avatar {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  // white gap + soft blue halo around the photo / initials
+  box-shadow: 0 0 0 5px #fff, 0 0 0 9px #dfe9fb;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+// initials fallback (UserAvatar renders a span when there is no photo)
+span.ysb__avatar {
+  background: var(--ysb-blue) !important;
+  color: #fff !important;
+}
+
+.ysb__name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ysb-ink);
+}
+
+.ysb__role {
+  margin-top: 2px;
+  font-size: 15px;
+  color: var(--ysb-soft);
+}
+
+.ysb__menu {
+  margin: 0;
+  padding: 12px 10px 14px;
+  list-style: none;
+}
+
+.ysb__link {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 20px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--ysb-ink);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  > .isax:first-child {
+    font-size: 22px;
+  }
+
+  > span {
+    flex: 1;
+  }
+
+  &:hover {
+    background: #f3f6fb;
+    color: var(--ysb-ink);
+  }
+
+  &.is-active {
+    background: #e9f0fe;
+    color: var(--ysb-blue);
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: 4px;
+      background: var(--ysb-blue);
+    }
+  }
+}
+
+.ysb__chevron {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+
+  &.is-open {
+    transform: rotate(90deg);
+  }
+}
+
+.ysb__sub {
+  margin: 2px 0 6px;
+  padding: 0 0 0 58px;
+  list-style: none;
+
+  a {
+    display: block;
+    padding: 7px 0;
+    font-size: 14.5px;
+    color: var(--ysb-soft);
+    text-decoration: none;
+
+    &:hover,
+    &.is-active {
+      color: var(--ysb-blue);
+    }
+    &.is-active {
+      font-weight: 700;
+    }
+  }
+}

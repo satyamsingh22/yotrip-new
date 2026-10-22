@@ -34,6 +34,13 @@ describe("HolidayBand", () => {
     expect(screen.getByText("3-day weekend")).toBeInTheDocument();
   });
 
+  it("main CTA scrolls to homepage flight search instead of flight-list", () => {
+    draw(ready);
+    const cta = screen.getByRole("link", { name: /find your next trip/i });
+    expect(cta).toHaveAttribute("href", expect.stringMatching(/\/?(\?|index\?).*tab=flights/));
+    expect(cta.getAttribute("href")).not.toContain("flight-list");
+  });
+
   it("links each row into flight search carrying the holiday dates", () => {
     draw(ready);
     const link = screen.getByRole("link", { name: /diwali/i });

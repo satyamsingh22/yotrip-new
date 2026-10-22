@@ -113,8 +113,10 @@ const Header: FC = () => {
   const isLightHero = isLightHeroPath(currentPath);
   const onLightHero = isLightHero && !scrolled;
   const darkChrome = scrolled || isLightHero;
-  // Your Bookings opens on a navy hero: white-text logo and a filled bookings pill.
-  const onNavyHero = currentPath === routes.yourBookings && !scrolled;
+  // Your Bookings and My Profile open on a navy hero: white-text logo (and, on
+  // Your Bookings, a filled bookings pill since it is the current page).
+  const onNavyHero =
+    (currentPath === routes.yourBookings || currentPath === routes.myProfile) && !scrolled;
 
   const licenseNo = process.env.NEXT_PUBLIC_LICENSE_NO ?? "73107635";
   const crNo = process.env.NEXT_PUBLIC_CR_NO ?? "7054310201";
@@ -147,7 +149,9 @@ const Header: FC = () => {
       <div
         className={`main-header ${isSpecialHeader ? "main-header-four" : ""} ${
           onLightHero ? "header-on-light" : ""
-        } ${onNavyHero ? "header-on-navy" : ""}`}
+        } ${onNavyHero ? "header-on-navy" : ""} ${
+          onNavyHero && currentPath === routes.yourBookings ? "header-on-bookings" : ""
+        }`}
       >
         <header className={`${scrolled ? "fixed" : ""}`}>
           <div className="container">

@@ -111,68 +111,77 @@ const SavedTravelers = () => {
   };
 
   return (
-    <div className="card shadow-none mb-0 mt-3">
-      <div className="card-header d-flex justify-content-between align-items-center">
-        <div>
-          <h6>Saved Travelers</h6>
-          <p className="fs-13 text-gray-6 mb-0">
-            Save passport details for family & friends to auto-fill them during booking.
-          </p>
+    <section className="ypf-card" aria-label="Saved Travelers">
+      <header className="ypf-card__head">
+        <span className="ypf-card__icon" aria-hidden>
+          <i className="isax isax-profile-2user" />
+        </span>
+        <div className="ypf-card__title">
+          <h2>Saved Travelers</h2>
+          <p>Save passenger details for family &amp; friends to auto-fill them during booking.</p>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={openAddForm} type="button">
-          <i className="isax isax-add me-1" />
+        <button className="ypf-btn ypf-btn--primary" onClick={openAddForm} type="button">
+          <i className="isax isax-add" aria-hidden />
           Add Traveler
         </button>
-      </div>
+      </header>
 
-      <div className="card-body">
+      <div className="ypf-travelers">
         {loading ? (
-          <p className="text-gray-6 mb-0">Loading...</p>
+          <p className="ypf-muted">Loading...</p>
         ) : travelers.length === 0 ? (
-          <p className="text-gray-6 mb-0">
-            No saved travelers yet. Add one to reuse their passport details at checkout.
-          </p>
-        ) : (
-          <div className="row g-2">
-            {travelers.map((traveler) => (
-              <div className="col-md-6" key={traveler._id}>
-                <div className="border rounded-3 p-3 h-100 d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 className="fs-14 mb-1">
-                      {traveler.firstName} {traveler.lastName}
-                      {traveler.label && (
-                        <span className="badge badge-soft-primary ms-2">{traveler.label}</span>
-                      )}
-                    </h6>
-                    <p className="fs-13 text-gray-6 mb-0">
-                      Passport: {maskPassport(traveler.passport?.documentNumber)}
-                    </p>
-                    {traveler.passport?.expiryDate && (
-                      <p className="fs-13 text-gray-6 mb-0">
-                        Expires: {traveler.passport.expiryDate}
-                      </p>
-                    )}
-                  </div>
-                  <div className="d-flex gap-1">
-                    <button
-                      type="button"
-                      className="btn btn-icon btn-sm btn-light"
-                      onClick={() => openEditForm(traveler)}
-                    >
-                      <i className="isax isax-edit-2" />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-icon btn-sm btn-light"
-                      onClick={() => handleDelete(traveler._id)}
-                    >
-                      <i className="isax isax-trash text-danger" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="ypf-empty">
+            <img
+              src="/assets/img/yt/profile/profile-travelers.webp"
+              alt=""
+              width={608}
+              height={284}
+              loading="lazy"
+            />
+            <div>
+              <h3>No saved travelers yet</h3>
+              <p>Add your traveler details to make your future bookings faster and easier.</p>
+              <button className="ypf-btn ypf-btn--outline" onClick={openAddForm} type="button">
+                <i className="isax isax-add" aria-hidden />
+                Add Traveler
+              </button>
+            </div>
           </div>
+        ) : (
+          <ul className="ypf-traveler-list">
+            {travelers.map((traveler) => (
+              <li className="ypf-traveler" key={traveler._id}>
+                <span className="ypf-traveler__avatar" aria-hidden>
+                  {`${traveler.firstName?.[0] || ""}${traveler.lastName?.[0] || ""}`.toUpperCase()}
+                </span>
+                <div className="ypf-traveler__body">
+                  <h3>
+                    {traveler.firstName} {traveler.lastName}
+                    {traveler.label && <span className="ypf-tag">{traveler.label}</span>}
+                  </h3>
+                  <p>Passport: {maskPassport(traveler.passport?.documentNumber)}</p>
+                  {traveler.passport?.expiryDate && <p>Expires: {traveler.passport.expiryDate}</p>}
+                </div>
+                <div className="ypf-traveler__actions">
+                  <button
+                    type="button"
+                    aria-label={`Edit ${traveler.firstName}`}
+                    onClick={() => openEditForm(traveler)}
+                  >
+                    <i className="isax isax-edit-2" />
+                  </button>
+                  <button
+                    type="button"
+                    className="is-danger"
+                    aria-label={`Remove ${traveler.firstName}`}
+                    onClick={() => handleDelete(traveler._id)}
+                  >
+                    <i className="isax isax-trash" />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 
@@ -342,7 +351,7 @@ const SavedTravelers = () => {
           </div>
         </>
       )}
-    </div>
+    </section>
   );
 };
 

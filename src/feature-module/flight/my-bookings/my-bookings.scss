@@ -976,7 +976,7 @@
 
 /* header over the navy hero (see header.tsx `onNavyHero`): the bookings link
    is the current page, so it reads as a filled pill like the mock */
-.main-header.header-on-navy .header-btn a.btn[href="/your-bookings"] {
+.main-header.header-on-bookings .header-btn a.btn[href="/your-bookings"] {
   border-color: #1a5cf5;
   background: #1a5cf5;
   color: #fff !important;
